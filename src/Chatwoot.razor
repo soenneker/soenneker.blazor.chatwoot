@@ -1,0 +1,186 @@
+@using System.Text.Json
+@using System.Threading
+@using Microsoft.JSInterop
+@using Soenneker.Blazor.Chatwoot.Abstract
+@using Soenneker.Blazor.Chatwoot.Configuration
+@using Soenneker.Blazor.Chatwoot.Dtos
+@using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Extensions.Task
+@using Soenneker.Extensions.ValueTask
+@using Soenneker.Extensions.String
+@using Soenneker.Utils.Json
+
+@inject IChatwootInterop ChatwootInterop
+
+@implements IChatwoot
+
+<div id="@_elementId" @attributes="Attributes" ></div>
+
+@code {
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object?>? Attributes { get; set; }
+
+    private DotNetObjectReference<Chatwoot>? _dotNetReference;
+    private readonly CancellationTokenSource _cTs = new();
+    private readonly string _elementId;
+
+    private bool _initialized;
+    private bool _isCreated;
+    private bool _shouldRender = true;
+
+    [Parameter]
+    public EventCallback OnReady { get; set; }
+
+    [Parameter]
+    public EventCallback OnOpen { get; set; }
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    [Parameter]
+    public EventCallback<ChatwootMessage> OnMessage { get; set; }
+
+    [Parameter]
+    public EventCallback<JsonElement> OnError { get; set; }
+
+    [Parameter]
+    public ChatwootConfiguration Configuration { get; set; } = new();
+
+    public Chatwoot()
+    {
+        _elementId = $"chatwoot-{Guid.NewGuid()}";
+    }
+
+    protected override bool ShouldRender() => _shouldRender;
+
+    protected override void OnInitialized() => _dotNetReference = DotNetObjectReference.Create(this);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_isCreated)
+        {
+            await Create(_cTs.Token).NoSync();
+        }
+    }
+
+    private async ValueTask Create(CancellationToken cancellationToken)
+    {
+        if (_initialized)
+            return;
+
+        if (Configuration.WebsiteToken.IsNullOrWhiteSpace())
+            throw new Exception("ChatwootConfiguration WebsiteToken is required.");
+
+        if (Configuration.BaseUrl.IsNullOrWhiteSpace())
+            throw new Exception("ChatwootConfiguration BaseUrl is required.");
+
+        _initialized = true;
+
+        await ChatwootInterop.Init(_elementId, Configuration, _dotNetReference!, cancellationToken).NoSync();
+        await ChatwootInterop.CreateObserver(_elementId, cancellationToken).NoSync();
+
+        _isCreated = true;
+        _shouldRender = false;
+    }
+
+    [JSInvokable]
+    public async Task OnReadyCallback() => await OnReady.InvokeIfHasDelegate().NoSync();
+
+    [JSInvokable]
+    public async Task OnOpenCallback() => await OnOpen.InvokeIfHasDelegate().NoSync();
+
+    [JSInvokable]
+    public async Task OnCloseCallback() => await OnClose.InvokeIfHasDelegate().NoSync();
+
+    [JSInvokable]
+    public async Task OnMessageCallback(JsonElement args)
+    {
+        var obj = JsonUtil.Deserialize<ChatwootMessage>(args.GetRawText());
+
+        await OnMessage.InvokeIfHasDelegate(obj).NoSync();
+    }
+
+    [JSInvokable]
+    public async Task OnErrorCallback(JsonElement args)
+    {
+        await OnError.InvokeIfHasDelegate(args).NoSync();
+    }
+
+    public ValueTask Shutdown(CancellationToken cancellationToken = default)
+    {
+        return ChatwootInterop.Shutdown(_elementId, cancellationToken);
+    }
+
+    public ValueTask Toggle(CancellationToken cancellationToken = default)
+    {
+        return ChatwootInterop.Toggle(_elementId, cancellationToken);
+    }
+
+    public ValueTask SetUser(string identifier, object attributes, CancellationToken cancellationToken = default)
+    {
+        return ChatwootInterop.SetUser(_elementId, identifier, attributes, cancellationToken);
+    }
+
+    public ValueTask SetUserAttributes(object attributes, CancellationToken cancellationToken = default)
+    {
+        return ChatwootInterop.SetUserAttributes(_elementId, attributes, cancellationToken);
+    }
+
+    public ValueTask SetLabel(string label, CancellationToken cancellationToken = default)
+    {
+        return ChatwootInterop.SetLabel(_elementId, label, cancellationToken);
+    }
+
+    public ValueTask CreateObserver(CancellationToken cancellationToken = default)
+    {
+        return ChatwootInterop.CreateObserver(_elementId, cancellationToken);
+    }
+
+    public ValueTask RemoveLabel(string label, CancellationToken cancellationToken = default)
+    {
+        return ChatwootInterop.RemoveLabel(_elementId, label, cancellationToken);
+    }
+
+    public ValueTask SetLocale(string locale, CancellationToken cancellationToken = default)
+    {
+        return ChatwootInterop.SetLocale(_elementId, locale, cancellationToken);
+    }
+
+    public ValueTask DeleteCustomAttribute(string attributeKey, CancellationToken cancellationToken = default)
+    {
+        return ChatwootInterop.DeleteCustomAttribute(_elementId, attributeKey, cancellationToken);
+    }
+
+    public ValueTask Reset(CancellationToken cancellationToken = default)
+    {
+        return ChatwootInterop.Reset(_elementId, cancellationToken);
+    }
+
+    public ValueTask SetCustomAttributes(object attributes, CancellationToken cancellationToken = default)
+    {
+        return ChatwootInterop.SetCustomAttributes(_elementId, attributes, cancellationToken);
+    }
+
+    public ValueTask PopoutChatWindow(CancellationToken cancellationToken = default)
+    {
+        return ChatwootInterop.PopoutChatWindow(_elementId, cancellationToken);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        GC.SuppressFinalize(this);
+
+        if (!_cTs.IsCancellationRequested)
+        {
+            await _cTs.CancelAsync().NoSync();
+            _cTs.Dispose();
+        }
+
+        _initialized = false;
+        _isCreated = false;
+
+        _dotNetReference?.Dispose();
+    }
+
+}

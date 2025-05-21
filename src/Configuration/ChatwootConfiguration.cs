@@ -5,7 +5,7 @@ namespace Soenneker.Blazor.Chatwoot.Configuration;
 /// <summary>
 /// Represents the general configuration for the Chatwoot widget.
 /// </summary>
-public class ChatwootConfiguration
+public sealed class ChatwootConfiguration
 {
     /// <summary>
     /// The website token provided by Chatwoot for widget integration.

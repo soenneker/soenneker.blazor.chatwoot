@@ -5,7 +5,7 @@ namespace Soenneker.Blazor.Chatwoot.Dtos;
 /// <summary>
 /// Represents metadata about the contact's inbox.
 /// </summary>
-public class ChatwootContactInbox
+public sealed class ChatwootContactInbox
 {
     /// <summary>
     /// The unique source ID for the contact-inbox link.

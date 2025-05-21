@@ -6,7 +6,7 @@ namespace Soenneker.Blazor.Chatwoot.Dtos;
 /// <summary>
 /// Represents conversation details associated with a message.
 /// </summary>
-public class ChatwootConversation
+public sealed class ChatwootConversation
 {
     /// <summary>
     /// The ID of the user assigned to the conversation (nullable).

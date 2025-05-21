@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Soenneker.Blazor.Chatwoot;
 
-public class ChatwootInterop : IChatwootInterop
+public sealed class ChatwootInterop : IChatwootInterop
 {
     private readonly IJSRuntime _jsRuntime;
     private readonly IResourceLoader _resourceLoader;
@@ -40,7 +40,7 @@ public class ChatwootInterop : IChatwootInterop
     {
         await _scriptInitializer.Init(cancellationToken, configuration).NoSync();
         string? json = JsonUtil.Serialize(configuration);
-        await _jsRuntime.InvokeVoidAsync($"{_moduleName}.init", cancellationToken, elementId, json, dotNetReference);
+        await _jsRuntime.InvokeVoidAsync($"{_moduleName}.init", cancellationToken, elementId, json, dotNetReference).NoSync();
     }
 
     public ValueTask Shutdown(string elementId, CancellationToken cancellationToken = default)

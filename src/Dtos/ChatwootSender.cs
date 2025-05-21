@@ -6,7 +6,7 @@ namespace Soenneker.Blazor.Chatwoot.Dtos;
 /// <summary>
 /// Represents the sender of a message in Chatwoot.
 /// </summary>
-public class ChatwootSender
+public sealed class ChatwootSender
 {
     /// <summary>
     /// Additional attributes about the sender, such as city and IP.

@@ -23,7 +23,7 @@
 
     private DotNetObjectReference<Chatwoot>? _dotNetReference;
     private readonly CancellationTokenSource _cTs = new();
-    private readonly string _elementId;
+    private readonly string _elementId = $"chatwoot-{Guid.NewGuid()}";
 
     private bool _initialized;
     private bool _isCreated;
@@ -46,11 +46,6 @@
 
     [Parameter]
     public ChatwootConfiguration Configuration { get; set; } = new();
-
-    public Chatwoot()
-    {
-        _elementId = $"chatwoot-{Guid.NewGuid()}";
-    }
 
     protected override bool ShouldRender() => _shouldRender;
 
@@ -85,26 +80,35 @@
     }
 
     [JSInvokable]
-    public async Task OnReadyCallback() => await OnReady.InvokeIfHasDelegate().NoSync();
-
-    [JSInvokable]
-    public async Task OnOpenCallback() => await OnOpen.InvokeIfHasDelegate().NoSync();
-
-    [JSInvokable]
-    public async Task OnCloseCallback() => await OnClose.InvokeIfHasDelegate().NoSync();
-
-    [JSInvokable]
-    public async Task OnMessageCallback(JsonElement args)
+    public Task OnReadyCallback()
     {
-        var obj = JsonUtil.Deserialize<ChatwootMessage>(args.GetRawText());
-
-        await OnMessage.InvokeIfHasDelegate(obj).NoSync();
+        return OnReady.InvokeIfHasDelegate();
     }
 
     [JSInvokable]
-    public async Task OnErrorCallback(JsonElement args)
+    public Task OnOpenCallback()
     {
-        await OnError.InvokeIfHasDelegate(args).NoSync();
+        return OnOpen.InvokeIfHasDelegate();
+    }
+
+    [JSInvokable]
+    public Task OnCloseCallback()
+    {
+        return OnClose.InvokeIfHasDelegate();
+    }
+
+    [JSInvokable]
+    public Task OnMessageCallback(JsonElement args)
+    {
+        var obj = JsonUtil.Deserialize<ChatwootMessage>(args.GetRawText());
+
+        return OnMessage.InvokeIfHasDelegate(obj);
+    }
+
+    [JSInvokable]
+    public Task OnErrorCallback(JsonElement args)
+    {
+        return OnError.InvokeIfHasDelegate(args);
     }
 
     public ValueTask Shutdown(CancellationToken cancellationToken = default)

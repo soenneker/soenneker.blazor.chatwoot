@@ -44,7 +44,7 @@
     }
 
     shutdown(elementId) {
-        window.$chatwoot?.shutdown();
+        window.$chatwoot?.reset();
 
         const instance = this.instances[elementId];
         if (instance?.observer) {

@@ -7,7 +7,7 @@ namespace Soenneker.Blazor.Chatwoot.Dtos;
 /// <summary>
 /// Represents a message sent or received in a Chatwoot conversation.
 /// </summary>
-public class ChatwootMessage
+public sealed class ChatwootMessage
 {
     /// <summary>
     /// The unique identifier of the message.

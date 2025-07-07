@@ -1,6 +1,7 @@
 ﻿export class ChatwootInterop {
     constructor() {
         this.instances = {};
+        this._handlers = {};
     }
 
     init(elementId, configuration, dotNetCallback) {
@@ -31,22 +32,42 @@
         };
 
         const instance = this.instances[elementId];
-        if (!instance) return;
+
+        if (!instance)
+            return;
+
+        this._handlers[elementId] = {};
 
         Object.keys(map).forEach(eventName => {
             const handler = (event) => {
                 const payload = event?.detail ?? null;
-                instance.dotNetCallback?.invokeMethodAsync(map[eventName], payload);
+                try {
+                    instance.dotNetCallback?.invokeMethodAsync(map[eventName], payload);
+                } catch (err) {
+                    console.warn("Chatwoot callback error:", err);
+                }
             };
 
+            this._handlers[elementId][eventName] = handler;
             window.addEventListener(eventName, handler);
         });
     }
 
+
     shutdown(elementId) {
+        const handlers = this._handlers[elementId];
+
+        if (handlers) {
+            Object.keys(handlers).forEach(eventName => {
+                window.removeEventListener(eventName, handlers[eventName]);
+            });
+            delete this._handlers[elementId];
+        }
+
         window.$chatwoot?.reset();
 
         const instance = this.instances[elementId];
+
         if (instance?.observer) {
             instance.observer.disconnect();
         }
@@ -119,7 +140,9 @@
 
     createObserver(elementId) {
         const target = document.getElementById(elementId);
-        if (!target || !target.parentNode) return null;
+
+        if (!target || !target.parentNode)
+            return null;
 
         const observer = new MutationObserver((mutations) => {
             const removed = mutations.some(m =>
@@ -132,6 +155,11 @@
         });
 
         observer.observe(target.parentNode, { childList: true });
+
+        if (this.instances[elementId]) {
+            this.instances[elementId].observer = observer;
+        }
+
         return observer;
     }
 }

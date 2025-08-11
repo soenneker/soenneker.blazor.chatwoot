@@ -10,7 +10,7 @@ namespace Soenneker.Blazor.Chatwoot.Abstract;
 /// <summary>
 /// Represents the Chatwoot live chat Blazor component with full interop functionality.
 /// </summary>
-public interface IChatwoot : IAsyncDisposable
+public interface IChatwoot 
 {
     /// <summary>
     /// Invoked when the Chatwoot widget is ready.

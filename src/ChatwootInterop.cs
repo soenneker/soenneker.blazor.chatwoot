@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace Soenneker.Blazor.Chatwoot;
 
+///<inheritdoc cref="IChatwootInterop"/>
 public sealed class ChatwootInterop : IChatwootInterop
 {
     private readonly IJSRuntime _jsRuntime;

@@ -1,16 +1,16 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Soenneker.Blazor.Chatwoot.Dtos;
-using System;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Soenneker.Quark.Components.Cancellable.Abstract;
 
 namespace Soenneker.Blazor.Chatwoot.Abstract;
 
 /// <summary>
 /// Represents the Chatwoot live chat Blazor component with full interop functionality.
 /// </summary>
-public interface IChatwoot 
+public interface IChatwoot : ICancellableComponent
 {
     /// <summary>
     /// Invoked when the Chatwoot widget is ready.

@@ -28,7 +28,6 @@
 
     private bool _initialized;
     private bool _isCreated;
-    private bool _shouldRender = true;
 
     [Parameter]
     public EventCallback OnReady { get; set; }
@@ -47,8 +46,6 @@
 
     [Parameter]
     public ChatwootConfiguration Configuration { get; set; } = new();
-
-    protected override bool ShouldRender() => _shouldRender;
 
     protected override void OnInitialized() => _dotNetReference = DotNetObjectReference.Create(this);
 
@@ -82,7 +79,6 @@
         }
 
         _isCreated = true;
-        _shouldRender = false;
     }
 
     [JSInvokable]

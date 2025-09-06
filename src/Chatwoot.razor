@@ -53,7 +53,7 @@
     {
         if (firstRender && !_isCreated)
         {
-            await Create(CancellationToken).NoSync();
+            await Create(CancellationToken);
         }
     }
 
@@ -74,8 +74,8 @@
 
         using (cts)
         {
-            await ChatwootInterop.Init(_elementId, Configuration, _dotNetReference!, linked).NoSync();
-            await ChatwootInterop.CreateObserver(_elementId, linked).NoSync();
+            await ChatwootInterop.Init(_elementId, Configuration, _dotNetReference!, linked);
+            await ChatwootInterop.CreateObserver(_elementId, linked);
         }
 
         _isCreated = true;
@@ -118,7 +118,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await ChatwootInterop.Shutdown(_elementId, linked).NoSync();
+            await ChatwootInterop.Shutdown(_elementId, linked);
     }
 
     public async ValueTask Toggle(CancellationToken cancellationToken = default)
@@ -126,7 +126,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await ChatwootInterop.Toggle(_elementId, linked).NoSync();
+            await ChatwootInterop.Toggle(_elementId, linked);
     }
 
     public async ValueTask SetUser(string identifier, object attributes, CancellationToken cancellationToken = default)
@@ -134,7 +134,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await ChatwootInterop.SetUser(_elementId, identifier, attributes, linked).NoSync();
+            await ChatwootInterop.SetUser(_elementId, identifier, attributes, linked);
     }
 
     public async ValueTask SetUserAttributes(object attributes, CancellationToken cancellationToken = default)
@@ -142,7 +142,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await ChatwootInterop.SetUserAttributes(_elementId, attributes, linked).NoSync();
+            await ChatwootInterop.SetUserAttributes(_elementId, attributes, linked);
     }
 
     public async ValueTask SetLabel(string label, CancellationToken cancellationToken = default)
@@ -150,7 +150,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await ChatwootInterop.SetLabel(_elementId, label, linked).NoSync();
+            await ChatwootInterop.SetLabel(_elementId, label, linked);
     }
 
     public async ValueTask CreateObserver(CancellationToken cancellationToken = default)
@@ -158,7 +158,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await ChatwootInterop.CreateObserver(_elementId, linked).NoSync();
+            await ChatwootInterop.CreateObserver(_elementId, linked);
     }
 
     public async ValueTask RemoveLabel(string label, CancellationToken cancellationToken = default)
@@ -166,7 +166,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cTs);
 
         using (cTs)
-            await ChatwootInterop.RemoveLabel(_elementId, label, linked).NoSync();
+            await ChatwootInterop.RemoveLabel(_elementId, label, linked);
     }
 
     public async ValueTask SetLocale(string locale, CancellationToken cancellationToken = default)
@@ -174,7 +174,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cTs);
 
         using (cTs)
-            await ChatwootInterop.SetLocale(_elementId, locale, linked).NoSync();
+            await ChatwootInterop.SetLocale(_elementId, locale, linked);
     }
 
     public async ValueTask DeleteCustomAttribute(string attributeKey, CancellationToken cancellationToken = default)
@@ -182,7 +182,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cTs);
 
         using (cTs)
-            await ChatwootInterop.DeleteCustomAttribute(_elementId, attributeKey, linked).NoSync();
+            await ChatwootInterop.DeleteCustomAttribute(_elementId, attributeKey, linked);
     }
 
     public async ValueTask Reset(CancellationToken cancellationToken = default)
@@ -190,7 +190,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cTs);
 
         using (cTs)
-            await ChatwootInterop.Reset(_elementId, linked).NoSync();
+            await ChatwootInterop.Reset(_elementId, linked);
     }
 
     public async ValueTask SetCustomAttributes(object attributes, CancellationToken cancellationToken = default)
@@ -198,7 +198,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cTs);
 
         using (cTs)
-            await ChatwootInterop.SetCustomAttributes(_elementId, attributes, linked).NoSync();
+            await ChatwootInterop.SetCustomAttributes(_elementId, attributes, linked);
     }
 
     public async ValueTask PopoutChatWindow(CancellationToken cancellationToken = default)
@@ -206,12 +206,12 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cTs);
 
         using (cTs)
-            await ChatwootInterop.PopoutChatWindow(_elementId, linked).NoSync();
+            await ChatwootInterop.PopoutChatWindow(_elementId, linked);
     }
 
     public override async ValueTask DisposeAsync()
     {
-        await base.DisposeAsync().NoSync();
+        await base.DisposeAsync();
 
         _initialized = false;
         _isCreated = false;

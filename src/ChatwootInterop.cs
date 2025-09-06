@@ -1,4 +1,4 @@
-﻿using Microsoft.JSInterop;
+using Microsoft.JSInterop;
 using Soenneker.Blazor.Chatwoot.Abstract;
 using Soenneker.Blazor.Chatwoot.Configuration;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
@@ -31,17 +31,17 @@ public sealed class ChatwootInterop : IChatwootInterop
             if (arr.Length == 0 || arr[0] is not ChatwootConfiguration config)
                 throw new ArgumentException("ChatwootConfiguration must be passed to script initializer");
 
-            await _resourceLoader.LoadScriptAndWaitForVariable(config.SdkUrl, "chatwootSDK", cancellationToken: token).NoSync();
-            await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleName, 100, token).NoSync();
+            await _resourceLoader.LoadScriptAndWaitForVariable(config.SdkUrl, "chatwootSDK", cancellationToken: token);
+            await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleName, 100, token);
             return new object();
         });
     }
 
     public async ValueTask Init(string elementId, ChatwootConfiguration configuration, DotNetObjectReference<Chatwoot> dotNetReference, CancellationToken cancellationToken = default)
     {
-        await _scriptInitializer.Init(cancellationToken, configuration).NoSync();
+        await _scriptInitializer.Init(cancellationToken, configuration);
         string? json = JsonUtil.Serialize(configuration);
-        await _jsRuntime.InvokeVoidAsync($"{_moduleName}.init", cancellationToken, elementId, json, dotNetReference).NoSync();
+        await _jsRuntime.InvokeVoidAsync($"{_moduleName}.init", cancellationToken, elementId, json, dotNetReference);
     }
 
     public ValueTask Shutdown(string elementId, CancellationToken cancellationToken = default)
@@ -109,7 +109,7 @@ public sealed class ChatwootInterop : IChatwootInterop
 
     public async ValueTask DisposeAsync()
     {
-        await _resourceLoader.DisposeModule(_module).NoSync();
-        await _scriptInitializer.DisposeAsync().NoSync();
+        await _resourceLoader.DisposeModule(_module);
+        await _scriptInitializer.DisposeAsync();
     }
 }

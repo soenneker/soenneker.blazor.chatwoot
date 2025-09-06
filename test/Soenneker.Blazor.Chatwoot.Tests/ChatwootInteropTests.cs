@@ -1,4 +1,4 @@
-﻿using Soenneker.Blazor.Chatwoot.Abstract;
+using Soenneker.Blazor.Chatwoot.Abstract;
 using Soenneker.Tests.FixturedUnit;
 using Xunit;
 

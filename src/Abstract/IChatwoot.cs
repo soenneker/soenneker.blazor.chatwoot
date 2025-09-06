@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components;
 using Soenneker.Blazor.Chatwoot.Dtos;
 using System.Text.Json;
 using System.Threading;

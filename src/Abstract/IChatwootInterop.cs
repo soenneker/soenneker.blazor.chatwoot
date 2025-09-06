@@ -1,4 +1,4 @@
-﻿using Microsoft.JSInterop;
+using Microsoft.JSInterop;
 using Soenneker.Blazor.Chatwoot.Configuration;
 using System;
 using System.Threading;

@@ -49,6 +49,6 @@
         <PackageReference Include="Soenneker.Extensions.List" Version="3.0.934" />
         <PackageReference Include="Soenneker.Json.CollectionConverter" Version="3.0.775" />
         <PackageReference Include="Soenneker.Quark.Components.Cancellable" Version="3.0.14" />
-        <PackageReference Include="Soenneker.Utils.Json" Version="3.0.2354" />
+        <PackageReference Include="Soenneker.Utils.Json" Version="3.0.2355" />
     </ItemGroup>
 </Project>

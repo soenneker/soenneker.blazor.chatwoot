@@ -35,7 +35,6 @@
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild></PropertyGroup>
     
     <ItemGroup>
-        
         <None Include="..\README.md" Pack="true" PackagePath="\" />
         <None Include="..\LICENSE" Pack="true" PackagePath="\" />
         <None Include="..\icon.png" Pack="true" PackagePath="\" />
@@ -48,7 +47,7 @@
         <PackageReference Include="Soenneker.Extensions.CancellationTokens" Version="3.0.3" />
         <PackageReference Include="Soenneker.Extensions.List" Version="3.0.934" />
         <PackageReference Include="Soenneker.Json.CollectionConverter" Version="3.0.776" />
-        <PackageReference Include="Soenneker.Quark.Components.Cancellable" Version="3.0.24" />
+        <PackageReference Include="Soenneker.Quark.Components.Core.Cancellable" Version="3.0.1" />
         <PackageReference Include="Soenneker.Utils.Json" Version="3.0.2355" />
     </ItemGroup>
 </Project>

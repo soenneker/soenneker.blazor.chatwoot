@@ -2,7 +2,6 @@ using Microsoft.JSInterop;
 using Soenneker.Blazor.Chatwoot.Abstract;
 using Soenneker.Blazor.Chatwoot.Configuration;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
-using Soenneker.Extensions.ValueTask;
 using Soenneker.Utils.AsyncSingleton;
 using Soenneker.Utils.Json;
 using System;

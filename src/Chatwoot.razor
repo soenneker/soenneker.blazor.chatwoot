@@ -11,16 +11,13 @@
 
 @inject IChatwootInterop ChatwootInterop
 
-@inherits Soenneker.Quark.Components.Core.Cancellable.CoreCancellableComponent
+@inherits Soenneker.Quark.CoreCancellableComponent
 @implements IChatwoot
 
 <div id="@Id" @attributes="Attributes" ></div>
 
 @code {
-
-    [Parameter(CaptureUnmatchedValues = true)]
-    public Dictionary<string, object?>? Attributes { get; set; }
-
+    
     private DotNetObjectReference<Chatwoot>? _dotNetReference;
 
     public override string? Id { get; set; } = $"chatwoot-{Guid.NewGuid()}";

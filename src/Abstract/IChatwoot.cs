@@ -3,7 +3,7 @@ using Soenneker.Blazor.Chatwoot.Dtos;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Soenneker.Quark.Components.Core.Cancellable.Abstract;
+using Soenneker.Quark;
 
 namespace Soenneker.Blazor.Chatwoot.Abstract;
 

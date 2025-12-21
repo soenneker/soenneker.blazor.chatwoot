@@ -2,11 +2,10 @@ using Microsoft.JSInterop;
 using Soenneker.Blazor.Chatwoot.Abstract;
 using Soenneker.Blazor.Chatwoot.Configuration;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
-using Soenneker.Utils.AsyncSingleton;
 using Soenneker.Utils.Json;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Soenneker.Asyncs.Initializers;
 
 namespace Soenneker.Blazor.Chatwoot;
 
@@ -15,7 +14,7 @@ public sealed class ChatwootInterop : IChatwootInterop
 {
     private readonly IJSRuntime _jsRuntime;
     private readonly IResourceLoader _resourceLoader;
-    private readonly AsyncSingleton _scriptInitializer;
+    private readonly AsyncInitializer<ChatwootConfiguration> _scriptInitializer;
 
     private const string _module = "Soenneker.Blazor.Chatwoot/js/chatwootinterop.js";
     private const string _moduleName = "ChatwootInterop";
@@ -25,20 +24,16 @@ public sealed class ChatwootInterop : IChatwootInterop
         _jsRuntime = jsRuntime;
         _resourceLoader = resourceLoader;
 
-        _scriptInitializer = new AsyncSingleton(async (token, arr) =>
+        _scriptInitializer = new AsyncInitializer<ChatwootConfiguration>(async (config, token) =>
         {
-            if (arr.Length == 0 || arr[0] is not ChatwootConfiguration config)
-                throw new ArgumentException("ChatwootConfiguration must be passed to script initializer");
-
             await _resourceLoader.LoadScriptAndWaitForVariable(config.SdkUrl, "chatwootSDK", cancellationToken: token);
             await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleName, 100, token);
-            return new object();
         });
     }
 
     public async ValueTask Init(string elementId, ChatwootConfiguration configuration, DotNetObjectReference<Chatwoot> dotNetReference, CancellationToken cancellationToken = default)
     {
-        await _scriptInitializer.Init(cancellationToken, configuration);
+        await _scriptInitializer.Init(configuration, cancellationToken);
         string? json = JsonUtil.Serialize(configuration);
         await _jsRuntime.InvokeVoidAsync($"{_moduleName}.init", cancellationToken, elementId, json, dotNetReference);
     }

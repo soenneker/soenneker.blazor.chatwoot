@@ -2,7 +2,6 @@ using Microsoft.JSInterop;
 using Soenneker.Blazor.Chatwoot.Abstract;
 using Soenneker.Blazor.Chatwoot.Configuration;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
-using Soenneker.Utils.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Soenneker.Asyncs.Initializers;
@@ -24,81 +23,80 @@ public sealed class ChatwootInterop : IChatwootInterop
         _jsRuntime = jsRuntime;
         _resourceLoader = resourceLoader;
 
-        _scriptInitializer = new AsyncInitializer<ChatwootConfiguration>(async (config, token) =>
-        {
-            await _resourceLoader.LoadScriptAndWaitForVariable(config.SdkUrl, "chatwootSDK", cancellationToken: token);
-            await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleName, 100, token);
-        });
+        _scriptInitializer = new AsyncInitializer<ChatwootConfiguration>(Initialize);
     }
 
-    public async ValueTask Init(string elementId, ChatwootConfiguration configuration, DotNetObjectReference<Chatwoot> dotNetReference, CancellationToken cancellationToken = default)
+    private async ValueTask Initialize(ChatwootConfiguration config, CancellationToken token)
+    {
+        await _resourceLoader.LoadScriptAndWaitForVariable(config.SdkUrl, "chatwootSDK", cancellationToken: token);
+        await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleName, 100, token);
+    }
+
+    public async ValueTask Init(string elementId, ChatwootConfiguration configuration, DotNetObjectReference<Chatwoot> dotNetReference,
+        CancellationToken cancellationToken = default)
     {
         await _scriptInitializer.Init(configuration, cancellationToken);
-        string? json = JsonUtil.Serialize(configuration);
-        await _jsRuntime.InvokeVoidAsync($"{_moduleName}.init", cancellationToken, elementId, json, dotNetReference);
+        await _jsRuntime.InvokeVoidAsync("ChatwootInterop.init", cancellationToken, elementId, configuration, dotNetReference);
     }
 
     public ValueTask Shutdown(string elementId, CancellationToken cancellationToken = default)
     {
-        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.shutdown", cancellationToken, elementId);
+        return _jsRuntime.InvokeVoidAsync("ChatwootInterop.shutdown", cancellationToken, elementId);
     }
 
     public ValueTask Toggle(string elementId, CancellationToken cancellationToken = default)
     {
-        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.toggle", cancellationToken, elementId);
+        return _jsRuntime.InvokeVoidAsync("ChatwootInterop.toggle", cancellationToken, elementId);
     }
 
     public ValueTask SetUser(string elementId, string identifier, object attributes, CancellationToken cancellationToken = default)
     {
-        string? json = JsonUtil.Serialize(attributes);
-        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.setUser", cancellationToken, elementId, identifier, json);
+        return _jsRuntime.InvokeVoidAsync("ChatwootInterop.setUser", cancellationToken, elementId, identifier, attributes);
     }
 
     public ValueTask SetUserAttributes(string elementId, object attributes, CancellationToken cancellationToken = default)
     {
-        string? json = JsonUtil.Serialize(attributes);
-        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.setUserAttributes", cancellationToken, elementId, json);
+        return _jsRuntime.InvokeVoidAsync("ChatwootInterop.setUserAttributes", cancellationToken, elementId, attributes);
     }
 
     public ValueTask SetLabel(string elementId, string label, CancellationToken cancellationToken = default)
     {
-        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.setLabel", cancellationToken, elementId, label);
+        return _jsRuntime.InvokeVoidAsync("ChatwootInterop.setLabel", cancellationToken, elementId, label);
     }
 
     public ValueTask CreateObserver(string elementId, CancellationToken cancellationToken = default)
     {
-        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.createObserver", cancellationToken, elementId);
+        return _jsRuntime.InvokeVoidAsync("ChatwootInterop.createObserver", cancellationToken, elementId);
     }
 
     public ValueTask RemoveLabel(string elementId, string label, CancellationToken cancellationToken = default)
     {
-        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.removeLabel", cancellationToken, elementId, label);
+        return _jsRuntime.InvokeVoidAsync("ChatwootInterop.removeLabel", cancellationToken, elementId, label);
     }
 
     public ValueTask SetLocale(string elementId, string locale, CancellationToken cancellationToken = default)
     {
-        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.setLocale", cancellationToken, elementId, locale);
+        return _jsRuntime.InvokeVoidAsync("ChatwootInterop.setLocale", cancellationToken, elementId, locale);
     }
 
     public ValueTask DeleteCustomAttribute(string elementId, string attributeKey, CancellationToken cancellationToken = default)
     {
-        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.deleteCustomAttribute", cancellationToken, elementId, attributeKey);
+        return _jsRuntime.InvokeVoidAsync("ChatwootInterop.deleteCustomAttribute", cancellationToken, elementId, attributeKey);
     }
 
     public ValueTask Reset(string elementId, CancellationToken cancellationToken = default)
     {
-        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.reset", cancellationToken, elementId);
+        return _jsRuntime.InvokeVoidAsync("ChatwootInterop.reset", cancellationToken, elementId);
     }
 
     public ValueTask SetCustomAttributes(string elementId, object attributes, CancellationToken cancellationToken = default)
     {
-        string? json = JsonUtil.Serialize(attributes);
-        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.setCustomAttributes", cancellationToken, elementId, json);
+        return _jsRuntime.InvokeVoidAsync("ChatwootInterop.setCustomAttributes", cancellationToken, elementId, attributes);
     }
 
     public ValueTask PopoutChatWindow(string elementId, CancellationToken cancellationToken = default)
     {
-        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.popoutChatWindow", cancellationToken, elementId);
+        return _jsRuntime.InvokeVoidAsync("ChatwootInterop.popoutChatWindow", cancellationToken, elementId);
     }
 
     public async ValueTask DisposeAsync()

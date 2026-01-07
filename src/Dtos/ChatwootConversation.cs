@@ -27,10 +27,10 @@ public sealed class ChatwootConversation
     public long LastActivityAtUnix { get; set; }
 
     /// <summary>
-    /// The UTC DateTime representation of the last activity.
+    /// The UTC representation of the last activity.
     /// </summary>
     [JsonIgnore]
-    public DateTime LastActivityAt => DateTimeOffset.FromUnixTimeSeconds(LastActivityAtUnix).UtcDateTime;
+    public DateTimeOffset LastActivityAt => DateTimeOffset.FromUnixTimeSeconds(LastActivityAtUnix);
 
     /// <summary>
     /// The contact inbox metadata.

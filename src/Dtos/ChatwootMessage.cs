@@ -55,13 +55,13 @@ public sealed class ChatwootMessage
     /// The UTC DateTime representation of the message creation timestamp.
     /// </summary>
     [JsonIgnore]
-    public DateTime CreatedAt => DateTimeOffset.FromUnixTimeSeconds(CreatedAtUnix).UtcDateTime;
+    public DateTimeOffset CreatedAt => DateTimeOffset.FromUnixTimeSeconds(CreatedAtUnix);
 
     /// <summary>
     /// The timestamp when the message was last updated.
     /// </summary>
     [JsonPropertyName("updated_at")]
-    public DateTime UpdatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
 
     /// <summary>
     /// Indicates whether the message is private (internal note).

@@ -41,7 +41,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.2" />
         <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="4.0.432" />
         <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1578" />
         <PackageReference Include="Soenneker.Extensions.CancellationTokens" Version="4.0.7" />
@@ -49,5 +48,6 @@
         <PackageReference Include="Soenneker.Json.CollectionConverter" Version="4.0.805" />
         <PackageReference Include="Soenneker.Quark.Components.Core.Cancellable" Version="4.0.37" />
         <PackageReference Include="Soenneker.Utils.Json" Version="4.0.2397" />
+        <PackageReference Include="Soenneker.Utils.CancellationScopes" Version="4.0.22" />
     </ItemGroup>
 </Project>

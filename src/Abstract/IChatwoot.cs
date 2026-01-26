@@ -52,18 +52,21 @@ public interface IChatwoot : ICoreCancellableComponent
     /// </summary>
     /// <param name="identifier">A unique string to identify the user.</param>
     /// <param name="attributes">A JSON-serializable object of attributes.</param>
+    /// <param name="cancellationToken"></param>
     ValueTask SetUser(string identifier, object attributes, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Updates user attributes without changing the identifier.
     /// </summary>
     /// <param name="attributes">A JSON-serializable object of attributes.</param>
+    /// <param name="cancellationToken"></param>
     ValueTask SetUserAttributes(object attributes, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Adds a label to the current conversation.
     /// </summary>
     /// <param name="label">The label to apply.</param>
+    /// <param name="cancellationToken"></param>
     ValueTask SetLabel(string label, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -75,18 +78,21 @@ public interface IChatwoot : ICoreCancellableComponent
     /// Removes a label from the current conversation.
     /// </summary>
     /// <param name="label">The label to remove.</param>
+    /// <param name="cancellationToken"></param>
     ValueTask RemoveLabel(string label, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Sets the locale (language) of the Chatwoot widget.
     /// </summary>
     /// <param name="locale">The locale string, e.g., "en", "fr".</param>
+    /// <param name="cancellationToken"></param>
     ValueTask SetLocale(string locale, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Deletes a previously set custom user attribute.
     /// </summary>
     /// <param name="attributeKey">The key of the attribute to delete.</param>
+    /// <param name="cancellationToken"></param>
     ValueTask DeleteCustomAttribute(string attributeKey, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -98,6 +104,7 @@ public interface IChatwoot : ICoreCancellableComponent
     /// Sets multiple custom user attributes.
     /// </summary>
     /// <param name="attributes">A JSON-serializable object of custom attributes.</param>
+    /// <param name="cancellationToken"></param>
     ValueTask SetCustomAttributes(object attributes, CancellationToken cancellationToken = default);
 
     /// <summary>

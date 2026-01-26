@@ -6,12 +6,13 @@
 @using Soenneker.Blazor.Chatwoot.Dtos
 @using Soenneker.Blazor.Extensions.EventCallback
 @using Soenneker.Extensions.String
+@using Soenneker.Quark
 @using Soenneker.Utils.Json
 @using Soenneker.Extensions.CancellationTokens
 
 @inject IChatwootInterop ChatwootInterop
 
-@inherits Soenneker.Quark.CoreCancellableComponent
+@inherits CoreCancellableComponent
 @implements IChatwoot
 
 <div id="@Id" @attributes="Attributes" ></div>

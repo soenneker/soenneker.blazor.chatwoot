@@ -4,11 +4,9 @@
         this._handlers = {};
     }
 
-    init(elementId, configuration, dotNetCallback) {
+    init(elementId, options, dotNetCallback) {
         if (this.instances[elementId]?.isLoaded)
             return;
-
-        var options = JSON.parse(configuration);
 
         this.instances[elementId] = {
             dotNetCallback,

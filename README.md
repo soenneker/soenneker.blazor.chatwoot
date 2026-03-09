@@ -1,6 +1,7 @@
-﻿[![](https://img.shields.io/nuget/v/soenneker.blazor.chatwoot.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.blazor.chatwoot/)
+[![](https://img.shields.io/nuget/v/soenneker.blazor.chatwoot.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.blazor.chatwoot/)
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.blazor.chatwoot/publish-package.yml?style=for-the-badge)](https://github.com/soenneker/soenneker.blazor.chatwoot/actions/workflows/publish-package.yml)
 [![](https://img.shields.io/nuget/dt/soenneker.blazor.chatwoot.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.blazor.chatwoot/)
+[![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.blazor.chatwoot/codeql.yml?label=CodeQL&style=for-the-badge)](https://github.com/soenneker/soenneker.blazor.chatwoot/actions/workflows/codeql.yml)
 
 # ![](https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png) Soenneker.Blazor.Chatwoot
 
@@ -8,17 +9,17 @@
 
 ---
 
-## ✨ Features
+## ? Features
 
-- 📦 Lightweight Blazor component wrapper for the Chatwoot JS SDK
-- 🔄 Full .NET interop with JavaScript events
-- 📡 Supports event callbacks like `OnOpen`, `OnMessage`, and `OnError`
-- ⚙️ Clean integration using dependency injection
-- 🧪 Supports unit testing with `IChatwoot` abstraction
+- ?? Lightweight Blazor component wrapper for the Chatwoot JS SDK
+- ?? Full .NET interop with JavaScript events
+- ?? Supports event callbacks like `OnOpen`, `OnMessage`, and `OnError`
+- ?? Clean integration using dependency injection
+- ?? Supports unit testing with `IChatwoot` abstraction
 
 ---
 
-## 📦 Installation
+## ?? Installation
 
 ```bash
 dotnet add package Soenneker.Blazor.Chatwoot
@@ -35,9 +36,9 @@ public static async Task Main(string[] args)
 
 ---
 
-## 🚀 Usage
+## ?? Usage
 
-### 🧩 Add to a Razor component
+### ?? Add to a Razor component
 
 ```razor
 <Chatwoot Configuration="_config"
@@ -48,7 +49,7 @@ public static async Task Main(string[] args)
           OnError="HandleError" />
 ```
 
-### 🧠 Component code-behind
+### ?? Component code-behind
 
 ```csharp
 @code {
@@ -84,7 +85,7 @@ public static async Task Main(string[] args)
 
 ---
 
-## ⚙️ Configuration
+## ?? Configuration
 
 You must supply a `ChatwootConfiguration` object to the component:
 
@@ -105,7 +106,7 @@ var config = new ChatwootConfiguration
 ```
 
 
-## 📚 API
+## ?? API
 
 This library provides a full interface via `IChatwoot`, including:
 
@@ -119,7 +120,7 @@ This library provides a full interface via `IChatwoot`, including:
 
 ---
 
-## 💬 Chatwoot Events
+## ?? Chatwoot Events
 
 The following Chatwoot events are exposed as Blazor `EventCallback`s:
 

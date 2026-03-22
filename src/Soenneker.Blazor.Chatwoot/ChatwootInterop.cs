@@ -18,7 +18,6 @@ public sealed class ChatwootInterop : IChatwootInterop
     private readonly AsyncInitializer<ChatwootConfiguration> _scriptInitializer;
 
     private const string _module = "Soenneker.Blazor.Chatwoot/js/chatwootinterop.js";
-    private const string _moduleName = "ChatwootInterop";
 
     private readonly CancellationScope _cancellationScope = new();
 
@@ -33,16 +32,13 @@ public sealed class ChatwootInterop : IChatwootInterop
     private async ValueTask Initialize(ChatwootConfiguration config, CancellationToken token)
     {
         await _resourceLoader.LoadScriptAndWaitForVariable(config.SdkUrl, "chatwootSDK", cancellationToken: token);
-        await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleName, 100, token);
+        await _resourceLoader.ImportModule(_module, token);
     }
 
-    public async ValueTask Init(
-        string elementId,
-        ChatwootConfiguration configuration,
-        DotNetObjectReference<Chatwoot> dotNetReference,
+    public async ValueTask Init(string elementId, ChatwootConfiguration configuration, DotNetObjectReference<Chatwoot> dotNetReference,
         CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
         {
@@ -53,7 +49,7 @@ public sealed class ChatwootInterop : IChatwootInterop
 
     public async ValueTask Shutdown(string elementId, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("ChatwootInterop.shutdown", linked, elementId);
@@ -61,7 +57,7 @@ public sealed class ChatwootInterop : IChatwootInterop
 
     public async ValueTask Toggle(string elementId, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("ChatwootInterop.toggle", linked, elementId);
@@ -69,7 +65,7 @@ public sealed class ChatwootInterop : IChatwootInterop
 
     public async ValueTask SetUser(string elementId, string identifier, object attributes, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("ChatwootInterop.setUser", linked, elementId, identifier, attributes);
@@ -77,7 +73,7 @@ public sealed class ChatwootInterop : IChatwootInterop
 
     public async ValueTask SetUserAttributes(string elementId, object attributes, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("ChatwootInterop.setUserAttributes", linked, elementId, attributes);
@@ -85,7 +81,7 @@ public sealed class ChatwootInterop : IChatwootInterop
 
     public async ValueTask SetLabel(string elementId, string label, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("ChatwootInterop.setLabel", linked, elementId, label);
@@ -93,7 +89,7 @@ public sealed class ChatwootInterop : IChatwootInterop
 
     public async ValueTask CreateObserver(string elementId, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("ChatwootInterop.createObserver", linked, elementId);
@@ -101,7 +97,7 @@ public sealed class ChatwootInterop : IChatwootInterop
 
     public async ValueTask RemoveLabel(string elementId, string label, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("ChatwootInterop.removeLabel", linked, elementId, label);
@@ -109,7 +105,7 @@ public sealed class ChatwootInterop : IChatwootInterop
 
     public async ValueTask SetLocale(string elementId, string locale, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("ChatwootInterop.setLocale", linked, elementId, locale);
@@ -117,7 +113,7 @@ public sealed class ChatwootInterop : IChatwootInterop
 
     public async ValueTask DeleteCustomAttribute(string elementId, string attributeKey, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("ChatwootInterop.deleteCustomAttribute", linked, elementId, attributeKey);
@@ -125,7 +121,7 @@ public sealed class ChatwootInterop : IChatwootInterop
 
     public async ValueTask Reset(string elementId, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("ChatwootInterop.reset", linked, elementId);
@@ -133,7 +129,7 @@ public sealed class ChatwootInterop : IChatwootInterop
 
     public async ValueTask SetCustomAttributes(string elementId, object attributes, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("ChatwootInterop.setCustomAttributes", linked, elementId, attributes);
@@ -141,7 +137,7 @@ public sealed class ChatwootInterop : IChatwootInterop
 
     public async ValueTask PopoutChatWindow(string elementId, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("ChatwootInterop.popoutChatWindow", linked, elementId);

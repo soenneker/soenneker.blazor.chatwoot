@@ -10,6 +10,7 @@ using Microsoft.JSInterop;
 using Serilog;
 using Serilog.Debugging;
 using Soenneker.Blazor.Chatwoot.Registrars;
+using Soenneker.Quark.Gen.Lucide.Generated;
 using Soenneker.Serilog.Sinks.Browser.Blazor.Registrars;
 
 namespace Soenneker.Blazor.Chatwoot.Demo;
@@ -34,6 +35,7 @@ public class Program
 
             builder.Services.AddChatwootInteropAsScoped();
             builder.Services.AddQuarkSuiteAsScoped();
+            builder.Services.AddLucideIconsAsScoped();
 
             WebAssemblyHost host = builder.Build();
 

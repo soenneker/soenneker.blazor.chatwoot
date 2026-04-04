@@ -1,16 +1,16 @@
 @page "/"
 @using Soenneker.Blazor.Chatwoot.Configuration
 
-<img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" />
-<h1>Soenneker.Blazor.Chatwoot demo</h1>
-<p>This page demonstrates some of the common usages for the interop library.</p>
+<PageTitle>Soenneker.Blazor.Chatwoot demo</PageTitle>
 
-<br />
+<Div Space="Space.Y.Is4">
+    <Paragraph TextSize="TextSize.Sm" Class="text-muted-foreground">
+        Chatwoot widget demo. Set <code class="rounded bg-muted px-1 py-0.5 text-xs">WebsiteToken</code> in code when testing a live inbox.
+    </Paragraph>
 
-<Chatwoot Configuration="_config"></Chatwoot>
+    <Chatwoot Configuration="_config" />
+</Div>
 
-<hr />
-
-@code{
+@code {
     private readonly ChatwootConfiguration _config = new() { WebsiteToken = "" };
 }

@@ -2,6 +2,7 @@ using Microsoft.JSInterop;
 using Soenneker.Asyncs.Initializers;
 using Soenneker.Blazor.Chatwoot.Abstract;
 using Soenneker.Blazor.Chatwoot.Configuration;
+using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
 using Soenneker.Extensions.CancellationTokens;
 using Soenneker.Utils.CancellationScopes;
@@ -13,18 +14,18 @@ namespace Soenneker.Blazor.Chatwoot;
 ///<inheritdoc cref="IChatwootInterop"/>
 public sealed class ChatwootInterop : IChatwootInterop
 {
-    private readonly IJSRuntime _jsRuntime;
     private readonly IResourceLoader _resourceLoader;
+    private readonly IModuleImportUtil _moduleImportUtil;
     private readonly AsyncInitializer<ChatwootConfiguration> _scriptInitializer;
 
-    private const string _module = "Soenneker.Blazor.Chatwoot/js/chatwootinterop.js";
+    private const string _wrapperModulePath = "/_content/Soenneker.Blazor.Chatwoot/js/chatwootinterop.js";
 
     private readonly CancellationScope _cancellationScope = new();
 
-    public ChatwootInterop(IJSRuntime jsRuntime, IResourceLoader resourceLoader)
+    public ChatwootInterop(IResourceLoader resourceLoader, IModuleImportUtil moduleImportUtil)
     {
-        _jsRuntime = jsRuntime;
         _resourceLoader = resourceLoader;
+        _moduleImportUtil = moduleImportUtil;
 
         _scriptInitializer = new AsyncInitializer<ChatwootConfiguration>(Initialize);
     }
@@ -32,7 +33,7 @@ public sealed class ChatwootInterop : IChatwootInterop
     private async ValueTask Initialize(ChatwootConfiguration config, CancellationToken token)
     {
         await _resourceLoader.LoadScriptAndWaitForVariable(config.SdkUrl, "chatwootSDK", cancellationToken: token);
-        await _resourceLoader.ImportModule(_module, token);
+        _ = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, token);
     }
 
     public async ValueTask Init(string elementId, ChatwootConfiguration configuration, DotNetObjectReference<Chatwoot> dotNetReference,
@@ -43,7 +44,8 @@ public sealed class ChatwootInterop : IChatwootInterop
         using (source)
         {
             await _scriptInitializer.Init(configuration, linked);
-            await _jsRuntime.InvokeVoidAsync("ChatwootInterop.init", linked, elementId, configuration, dotNetReference);
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidAsync("init", linked, elementId, configuration, dotNetReference);
         }
     }
 
@@ -52,7 +54,10 @@ public sealed class ChatwootInterop : IChatwootInterop
         CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
-            await _jsRuntime.InvokeVoidAsync("ChatwootInterop.shutdown", linked, elementId);
+        {
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidAsync("shutdown", linked, elementId);
+        }
     }
 
     public async ValueTask Toggle(string elementId, CancellationToken cancellationToken = default)
@@ -60,7 +65,10 @@ public sealed class ChatwootInterop : IChatwootInterop
         CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
-            await _jsRuntime.InvokeVoidAsync("ChatwootInterop.toggle", linked, elementId);
+        {
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidAsync("toggle", linked, elementId);
+        }
     }
 
     public async ValueTask SetUser(string elementId, string identifier, object attributes, CancellationToken cancellationToken = default)
@@ -68,7 +76,10 @@ public sealed class ChatwootInterop : IChatwootInterop
         CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
-            await _jsRuntime.InvokeVoidAsync("ChatwootInterop.setUser", linked, elementId, identifier, attributes);
+        {
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidAsync("setUser", linked, elementId, identifier, attributes);
+        }
     }
 
     public async ValueTask SetUserAttributes(string elementId, object attributes, CancellationToken cancellationToken = default)
@@ -76,7 +87,10 @@ public sealed class ChatwootInterop : IChatwootInterop
         CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
-            await _jsRuntime.InvokeVoidAsync("ChatwootInterop.setUserAttributes", linked, elementId, attributes);
+        {
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidAsync("setUserAttributes", linked, elementId, attributes);
+        }
     }
 
     public async ValueTask SetLabel(string elementId, string label, CancellationToken cancellationToken = default)
@@ -84,7 +98,10 @@ public sealed class ChatwootInterop : IChatwootInterop
         CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
-            await _jsRuntime.InvokeVoidAsync("ChatwootInterop.setLabel", linked, elementId, label);
+        {
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidAsync("setLabel", linked, elementId, label);
+        }
     }
 
     public async ValueTask CreateObserver(string elementId, CancellationToken cancellationToken = default)
@@ -92,7 +109,10 @@ public sealed class ChatwootInterop : IChatwootInterop
         CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
-            await _jsRuntime.InvokeVoidAsync("ChatwootInterop.createObserver", linked, elementId);
+        {
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidAsync("createObserver", linked, elementId);
+        }
     }
 
     public async ValueTask RemoveLabel(string elementId, string label, CancellationToken cancellationToken = default)
@@ -100,7 +120,10 @@ public sealed class ChatwootInterop : IChatwootInterop
         CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
-            await _jsRuntime.InvokeVoidAsync("ChatwootInterop.removeLabel", linked, elementId, label);
+        {
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidAsync("removeLabel", linked, elementId, label);
+        }
     }
 
     public async ValueTask SetLocale(string elementId, string locale, CancellationToken cancellationToken = default)
@@ -108,7 +131,10 @@ public sealed class ChatwootInterop : IChatwootInterop
         CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
-            await _jsRuntime.InvokeVoidAsync("ChatwootInterop.setLocale", linked, elementId, locale);
+        {
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidAsync("setLocale", linked, elementId, locale);
+        }
     }
 
     public async ValueTask DeleteCustomAttribute(string elementId, string attributeKey, CancellationToken cancellationToken = default)
@@ -116,7 +142,10 @@ public sealed class ChatwootInterop : IChatwootInterop
         CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
-            await _jsRuntime.InvokeVoidAsync("ChatwootInterop.deleteCustomAttribute", linked, elementId, attributeKey);
+        {
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidAsync("deleteCustomAttribute", linked, elementId, attributeKey);
+        }
     }
 
     public async ValueTask Reset(string elementId, CancellationToken cancellationToken = default)
@@ -124,7 +153,10 @@ public sealed class ChatwootInterop : IChatwootInterop
         CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
-            await _jsRuntime.InvokeVoidAsync("ChatwootInterop.reset", linked, elementId);
+        {
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidAsync("reset", linked, elementId);
+        }
     }
 
     public async ValueTask SetCustomAttributes(string elementId, object attributes, CancellationToken cancellationToken = default)
@@ -132,7 +164,10 @@ public sealed class ChatwootInterop : IChatwootInterop
         CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
-            await _jsRuntime.InvokeVoidAsync("ChatwootInterop.setCustomAttributes", linked, elementId, attributes);
+        {
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidAsync("setCustomAttributes", linked, elementId, attributes);
+        }
     }
 
     public async ValueTask PopoutChatWindow(string elementId, CancellationToken cancellationToken = default)
@@ -140,12 +175,15 @@ public sealed class ChatwootInterop : IChatwootInterop
         CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
-            await _jsRuntime.InvokeVoidAsync("ChatwootInterop.popoutChatWindow", linked, elementId);
+        {
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidAsync("popoutChatWindow", linked, elementId);
+        }
     }
 
     public async ValueTask DisposeAsync()
     {
-        await _resourceLoader.DisposeModule(_module);
+        await _moduleImportUtil.DisposeContentModule(_wrapperModulePath);
         await _scriptInitializer.DisposeAsync();
         await _cancellationScope.DisposeAsync();
     }

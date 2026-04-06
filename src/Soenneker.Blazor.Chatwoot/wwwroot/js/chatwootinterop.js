@@ -1,10 +1,6 @@
-﻿export class ChatwootInterop {
-    constructor() {
-        this.instances = {};
-        this._handlers = {};
-    }
-
-    init(elementId, options, dotNetCallback) {
+const interop = (() => {
+    const instance = {};
+    instance.init = function(elementId, options, dotNetCallback) {
         if (this.instances[elementId]?.isLoaded)
             return;
 
@@ -18,9 +14,9 @@
         this.attachEvents(elementId);
 
         window.chatwootSDK.run(window.chatwootSettings);
-    }
+    };
 
-    attachEvents(elementId) {
+    instance.attachEvents = function(elementId) {
         const map = {
             "chatwoot:ready": "OnReadyCallback",
             "chatwoot:open": "OnOpenCallback",
@@ -49,10 +45,9 @@
             this._handlers[elementId][eventName] = handler;
             window.addEventListener(eventName, handler);
         });
-    }
+    };
 
-
-    shutdown(elementId) {
+    instance.shutdown = function(elementId) {
         const handlers = this._handlers[elementId];
 
         if (handlers) {
@@ -71,72 +66,72 @@
         }
 
         delete this.instances[elementId];
-    }
+    };
 
-    toggle(elementId) {
+    instance.toggle = function(elementId) {
         if (this.instances[elementId]?.isLoaded) {
             window.$chatwoot?.toggle();
         }
-    }
+    };
 
-    setUser(elementId, identifier, attributesJson) {
+    instance.setUser = function(elementId, identifier, attributesJson) {
         const attributes = JSON.parse(attributesJson);
         if (this.instances[elementId]?.isLoaded) {
             window.$chatwoot?.setUser(identifier, attributes);
         }
-    }
+    };
 
-    setUserAttributes(elementId, attributesJson) {
+    instance.setUserAttributes = function(elementId, attributesJson) {
         const attributes = JSON.parse(attributesJson);
         if (this.instances[elementId]?.isLoaded) {
             window.$chatwoot?.setUserAttributes(attributes);
         }
-    }
+    };
 
-    setLabel(elementId, label) {
+    instance.setLabel = function(elementId, label) {
         if (this.instances[elementId]?.isLoaded) {
             window.$chatwoot?.setLabel(label);
         }
-    }
+    };
 
-    removeLabel(elementId, label) {
+    instance.removeLabel = function(elementId, label) {
         if (this.instances[elementId]?.isLoaded) {
             window.$chatwoot?.removeLabel(label);
         }
-    }
+    };
 
-    setLocale(elementId, locale) {
+    instance.setLocale = function(elementId, locale) {
         if (this.instances[elementId]?.isLoaded) {
             window.$chatwoot?.setLocale(locale);
         }
-    }
+    };
 
-    deleteCustomAttribute(elementId, key) {
+    instance.deleteCustomAttribute = function(elementId, key) {
         if (this.instances[elementId]?.isLoaded) {
             window.$chatwoot?.deleteCustomAttribute(key);
         }
-    }
+    };
 
-    reset(elementId) {
+    instance.reset = function(elementId) {
         if (this.instances[elementId]?.isLoaded) {
             window.$chatwoot?.reset();
         }
-    }
+    };
 
-    setCustomAttributes(elementId, attributesJson) {
+    instance.setCustomAttributes = function(elementId, attributesJson) {
         const attributes = JSON.parse(attributesJson);
         if (this.instances[elementId]?.isLoaded) {
             window.$chatwoot?.setCustomAttributes(attributes);
         }
-    }
+    };
 
-    popoutChatWindow(elementId) {
+    instance.popoutChatWindow = function(elementId) {
         if (this.instances[elementId]?.isLoaded) {
             window.$chatwoot?.popoutChatWindow();
         }
-    }
+    };
 
-    createObserver(elementId) {
+    instance.createObserver = function(elementId) {
         const target = document.getElementById(elementId);
 
         if (!target || !target.parentNode)
@@ -159,7 +154,62 @@
         }
 
         return observer;
-    }
+    };
+
+        instance.instances = {};
+        instance._handlers = {};
+    
+
+    return instance;
+})();
+export function init(elementId, options, dotNetCallback) {
+    return interop.init(elementId, options, dotNetCallback);
 }
 
-window.ChatwootInterop = new ChatwootInterop();
+export function shutdown(elementId) {
+    return interop.shutdown(elementId);
+}
+
+export function toggle(elementId) {
+    return interop.toggle(elementId);
+}
+
+export function setUser(elementId, identifier, attributes) {
+    return interop.setUser(elementId, identifier, attributes);
+}
+
+export function setUserAttributes(elementId, attributes) {
+    return interop.setUserAttributes(elementId, attributes);
+}
+
+export function setLabel(elementId, label) {
+    return interop.setLabel(elementId, label);
+}
+
+export function createObserver(elementId) {
+    return interop.createObserver(elementId);
+}
+
+export function removeLabel(elementId, label) {
+    return interop.removeLabel(elementId, label);
+}
+
+export function setLocale(elementId, locale) {
+    return interop.setLocale(elementId, locale);
+}
+
+export function deleteCustomAttribute(elementId, attributeKey) {
+    return interop.deleteCustomAttribute(elementId, attributeKey);
+}
+
+export function reset(elementId) {
+    return interop.reset(elementId);
+}
+
+export function setCustomAttributes(elementId, attributes) {
+    return interop.setCustomAttributes(elementId, attributes);
+}
+
+export function popoutChatWindow(elementId) {
+    return interop.popoutChatWindow(elementId);
+}

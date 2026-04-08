@@ -18,7 +18,7 @@ public sealed class ChatwootInterop : IChatwootInterop
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly AsyncInitializer<ChatwootConfiguration> _scriptInitializer;
 
-    private const string _wrapperModulePath = "/_content/Soenneker.Blazor.Chatwoot/js/chatwootinterop.js";
+    private const string _wrapperModulePath = "_content/Soenneker.Blazor.Chatwoot/js/chatwootinterop.js";
 
     private readonly CancellationScope _cancellationScope = new();
 

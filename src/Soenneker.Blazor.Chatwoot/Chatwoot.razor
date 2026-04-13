@@ -5,6 +5,7 @@
 @using Soenneker.Blazor.Chatwoot.Configuration
 @using Soenneker.Blazor.Chatwoot.Dtos
 @using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Blazor.Utils.Ids
 @using Soenneker.Quark
 @using Soenneker.Extensions.CancellationTokens
 @using Soenneker.Utils.Json
@@ -21,7 +22,7 @@
     
     private DotNetObjectReference<Chatwoot>? _dotNetReference;
 
-    public override string? Id { get; set; } = $"chatwoot-{Guid.NewGuid()}";
+    public override string? Id { get; set; } = BlazorIdGenerator.New("chatwoot");
 
     private bool _initialized;
     private bool _isCreated;

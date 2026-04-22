@@ -1,20 +1,19 @@
 using Soenneker.Blazor.Chatwoot.Abstract;
-using Soenneker.Tests.FixturedUnit;
-using Xunit;
+using Soenneker.Tests.HostedUnit;
 
 namespace Soenneker.Blazor.Chatwoot.Tests;
 
-[Collection("Collection")]
-public class ChatwootInteropTests : FixturedUnitTest
+[ClassDataSource<Host>(Shared = SharedType.PerTestSession)]
+public class ChatwootInteropTests : HostedUnitTest
 {
     private readonly IChatwootInterop _blazorlibrary;
 
-    public ChatwootInteropTests(Fixture fixture, ITestOutputHelper output) : base(fixture, output)
+    public ChatwootInteropTests(Host host) : base(host)
     {
         _blazorlibrary = Resolve<IChatwootInterop>(true);
     }
 
-    [Fact]
+    [Test]
     public void Default()
     {
 

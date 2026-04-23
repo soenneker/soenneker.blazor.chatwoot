@@ -31,14 +31,14 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
-      - name: Restore tests
-        run: dotnet restore test/Soenneker.Blazor.Chatwoot.Demo/Soenneker.Blazor.Chatwoot.Demo.csproj --verbosity minimal
+      - name: Restore
+        run: dotnet restore Soenneker.Blazor.Chatwoot.slnx --verbosity minimal
 
-      - name: Build tests
-        run: dotnet build test/Soenneker.Blazor.Chatwoot.Demo/Soenneker.Blazor.Chatwoot.Demo.csproj --configuration Release --no-restore --verbosity minimal
+      - name: Build
+        run: dotnet build Soenneker.Blazor.Chatwoot.slnx --configuration Release --no-restore --verbosity minimal
 
       - name: Test
-        run: dotnet test --project test/Soenneker.Blazor.Chatwoot.Demo/Soenneker.Blazor.Chatwoot.Demo.csproj --configuration Release --no-build --no-restore --verbosity minimal
+        run: dotnet test --project test/Soenneker.Blazor.Chatwoot.Tests/Soenneker.Blazor.Chatwoot.Tests.csproj --configuration Release --no-build --no-restore --verbosity minimal
 
       - name: Pack
         run: dotnet pack src/Soenneker.Blazor.Chatwoot/Soenneker.Blazor.Chatwoot.csproj --configuration Release --no-build --no-restore --output . --verbosity minimal

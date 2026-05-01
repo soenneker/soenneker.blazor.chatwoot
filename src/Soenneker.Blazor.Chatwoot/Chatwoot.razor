@@ -6,23 +6,25 @@
 @using Soenneker.Blazor.Chatwoot.Dtos
 @using Soenneker.Blazor.Extensions.EventCallback
 @using Soenneker.Blazor.Utils.Ids
-@using Soenneker.Quark
 @using Soenneker.Extensions.CancellationTokens
 @using Soenneker.Utils.Json
 @using Soenneker.Extensions.String
 
 @inject IChatwootInterop ChatwootInterop
 
-@inherits CoreCancellableComponent
+@inherits Soenneker.Lepton.Suite.LeptonCancellableIdentifiableContentElement
 @implements IChatwoot
 
-<div id="@Id" @attributes="Attributes" ></div>
+<div id="@Id" @attributes="EffectiveAttributes" ></div>
 
 @code {
     
     private DotNetObjectReference<Chatwoot>? _dotNetReference;
 
-    public override string? Id { get; set; } = BlazorIdGenerator.New("chatwoot");
+    public Chatwoot()
+    {
+        Id = BlazorIdGenerator.New("chatwoot");
+    }
 
     private bool _initialized;
     private bool _isCreated;

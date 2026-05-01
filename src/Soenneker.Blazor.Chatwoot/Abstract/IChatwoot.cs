@@ -3,14 +3,14 @@ using Soenneker.Blazor.Chatwoot.Dtos;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Soenneker.Quark;
+using Soenneker.Lepton.Suite.Abstract;
 
 namespace Soenneker.Blazor.Chatwoot.Abstract;
 
 /// <summary>
 /// Represents the Chatwoot live chat Blazor component with full interop functionality.
 /// </summary>
-public interface IChatwoot : ICoreCancellableComponent
+public interface IChatwoot : ILeptonCancellableIdentifiableContentElement
 {
     /// <summary>
     /// Invoked when the Chatwoot widget is ready.

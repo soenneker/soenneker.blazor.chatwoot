@@ -84,4 +84,11 @@ public sealed class ChatwootConfiguration
     /// </summary>
     [JsonPropertyName("baseDomain")]
     public string? BaseDomain { get; set; }
+
+    /// <summary>
+    /// The z-index applied to Chatwoot launcher and widget elements.
+    /// Defaults below common app dialogs and consent banners so host UI can remain clickable.
+    /// </summary>
+    [JsonPropertyName("widgetZIndex")]
+    public int WidgetZIndex { get; set; } = 40;
 }

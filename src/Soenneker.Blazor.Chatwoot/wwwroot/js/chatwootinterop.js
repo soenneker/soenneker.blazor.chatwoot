@@ -15,6 +15,30 @@ export function init(elementId, options, dotNetCallback) {
     attachEvents(elementId);
 
     window.chatwootSDK.run(window.chatwootSettings);
+    applyWidgetLayer(options);
+}
+
+function applyWidgetLayer(options) {
+    const zIndex = Number.isFinite(options?.widgetZIndex) ? options.widgetZIndex : 40;
+    const styleId = "soenneker-chatwoot-widget-layer";
+    const css = `
+        .woot-widget-bubble,
+        .woot-widget-holder,
+        #woot-widget-holder,
+        iframe.woot-widget-holder {
+            z-index: ${zIndex} !important;
+        }
+    `;
+
+    let style = document.getElementById(styleId);
+
+    if (!style) {
+        style = document.createElement("style");
+        style.id = styleId;
+        document.head.appendChild(style);
+    }
+
+    style.textContent = css;
 }
 
 function attachEvents(elementId) {

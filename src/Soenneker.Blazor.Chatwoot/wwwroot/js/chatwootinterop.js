@@ -1,5 +1,18 @@
 ﻿const chatwootInstances = {};
 const eventHandlersByElementId = {};
+const widgetStateObserversByElementId = {};
+
+const widgetFrameSelector = [
+    ".woot-widget-holder",
+    "#woot-widget-holder",
+    "iframe.woot-widget-holder"
+].join(",");
+
+const widgetBubbleSelector = [
+    ".woot-widget-bubble",
+    "#woot-widget-bubble",
+    ".woot--bubble-holder"
+].join(",");
 
 export function init(elementId, options, dotNetCallback) {
     if (chatwootInstances[elementId]?.isLoaded)
@@ -7,7 +20,9 @@ export function init(elementId, options, dotNetCallback) {
 
     chatwootInstances[elementId] = {
         dotNetCallback,
-        isLoaded: true
+        isLoaded: true,
+        isOpen: false,
+        options
     };
 
     window.chatwootSettings = options;
@@ -16,6 +31,8 @@ export function init(elementId, options, dotNetCallback) {
 
     window.chatwootSDK.run(window.chatwootSettings);
     applyWidgetLayer(options);
+    createWidgetStateObserver(elementId);
+    setWidgetPointerEvents(elementId, false);
 }
 
 function applyWidgetLayer(options) {
@@ -60,6 +77,8 @@ function attachEvents(elementId) {
     Object.keys(map).forEach(eventName => {
         const handler = (event) => {
             const payload = event?.detail ?? null;
+            updateWidgetStateFromEvent(elementId, eventName);
+
             try {
                 cwState.dotNetCallback?.invokeMethodAsync(map[eventName], payload);
             } catch (err) {
@@ -72,6 +91,72 @@ function attachEvents(elementId) {
     });
 }
 
+function updateWidgetStateFromEvent(elementId, eventName) {
+    const cwState = chatwootInstances[elementId];
+
+    if (!cwState)
+        return;
+
+    if (eventName === "chatwoot:open") {
+        cwState.isOpen = true;
+        setWidgetPointerEvents(elementId, true);
+        return;
+    }
+
+    if (eventName === "chatwoot:close" || eventName === "chatwoot:error") {
+        cwState.isOpen = false;
+        setWidgetPointerEvents(elementId, false);
+    }
+}
+
+function setWidgetPointerEvents(elementId, enabled) {
+    const options = chatwootInstances[elementId]?.options;
+
+    document.querySelectorAll(widgetFrameSelector).forEach(element => {
+        element.style.pointerEvents = enabled ? "" : "none";
+    });
+
+    if (options?.hideMessageBubble) {
+        document.querySelectorAll(widgetBubbleSelector).forEach(element => {
+            element.style.pointerEvents = enabled ? "" : "none";
+        });
+    }
+}
+
+function isHidden(element) {
+    const style = window.getComputedStyle(element);
+    return style.display === "none" || style.visibility === "hidden" || style.opacity === "0";
+}
+
+function reconcileWidgetPointerEvents(elementId) {
+    const cwState = chatwootInstances[elementId];
+
+    if (!cwState)
+        return;
+
+    const frame = document.querySelector(widgetFrameSelector);
+
+    if (cwState.isOpen && frame && isHidden(frame))
+        cwState.isOpen = false;
+
+    setWidgetPointerEvents(elementId, cwState.isOpen);
+}
+
+function createWidgetStateObserver(elementId) {
+    if (widgetStateObserversByElementId[elementId] || !document.body)
+        return;
+
+    const observer = new MutationObserver(() => reconcileWidgetPointerEvents(elementId));
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["class", "style"]
+    });
+
+    widgetStateObserversByElementId[elementId] = observer;
+}
+
 export function shutdown(elementId) {
     const handlers = eventHandlersByElementId[elementId];
 
@@ -82,13 +167,17 @@ export function shutdown(elementId) {
         delete eventHandlersByElementId[elementId];
     }
 
-    window.$chatwoot?.reset();
-
     const cwState = chatwootInstances[elementId];
+
+    setWidgetPointerEvents(elementId, false);
+    window.$chatwoot?.reset();
 
     if (cwState?.observer) {
         cwState.observer.disconnect();
     }
+
+    widgetStateObserversByElementId[elementId]?.disconnect();
+    delete widgetStateObserversByElementId[elementId];
 
     delete chatwootInstances[elementId];
 }

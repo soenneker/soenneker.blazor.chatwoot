@@ -27,6 +27,16 @@ public interface IChatwootInterop : IAsyncDisposable
     ValueTask Toggle(string elementId, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Opens the Chatwoot widget, waiting briefly for the SDK to finish attaching if necessary.
+    /// </summary>
+    ValueTask Open(string elementId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Closes the Chatwoot widget without resetting the current session.
+    /// </summary>
+    ValueTask Close(string elementId, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Sets the user identifier and attributes.
     /// </summary>
     ValueTask SetUser(string elementId, string identifier, object attributes, CancellationToken cancellationToken = default);

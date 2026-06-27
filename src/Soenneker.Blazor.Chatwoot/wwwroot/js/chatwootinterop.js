@@ -5,13 +5,19 @@ const widgetStateObserversByElementId = {};
 const widgetFrameSelector = [
     ".woot-widget-holder",
     "#woot-widget-holder",
-    "iframe.woot-widget-holder"
+    "iframe.woot-widget-holder",
+    "iframe[src*='chatwoot']",
+    "iframe[title*='Chat']",
+    "iframe[title*='chat']"
 ].join(",");
 
 const widgetBubbleSelector = [
     ".woot-widget-bubble",
     "#woot-widget-bubble",
-    ".woot--bubble-holder"
+    ".woot--bubble-holder",
+    "[id^='woot-widget-bubble']",
+    "[class*='woot-widget-bubble']",
+    "[class*='woot--bubble']"
 ].join(",");
 
 export function init(elementId, options, dotNetCallback) {
@@ -20,8 +26,11 @@ export function init(elementId, options, dotNetCallback) {
 
     chatwootInstances[elementId] = {
         dotNetCallback,
+        isOpening: false,
         isLoaded: true,
         isOpen: false,
+        isReady: false,
+        openAttempt: 0,
         options
     };
 
@@ -97,14 +106,23 @@ function updateWidgetStateFromEvent(elementId, eventName) {
     if (!cwState)
         return;
 
+    if (eventName === "chatwoot:ready") {
+        cwState.isReady = true;
+        createWidgetStateObserver(elementId);
+        return;
+    }
+
     if (eventName === "chatwoot:open") {
         cwState.isOpen = true;
+        cwState.isOpening = false;
+        cwState.isReady = true;
         setWidgetPointerEvents(elementId, true);
         return;
     }
 
     if (eventName === "chatwoot:close" || eventName === "chatwoot:error") {
         cwState.isOpen = false;
+        cwState.isOpening = false;
         setWidgetPointerEvents(elementId, false);
     }
 }
@@ -134,6 +152,9 @@ function reconcileWidgetPointerEvents(elementId) {
     if (!cwState)
         return;
 
+    if (cwState.isOpening)
+        return;
+
     const frame = document.querySelector(widgetFrameSelector);
 
     if (cwState.isOpen && frame && isHidden(frame))
@@ -155,6 +176,32 @@ function createWidgetStateObserver(elementId) {
     });
 
     widgetStateObserversByElementId[elementId] = observer;
+}
+
+function scheduleWidgetReconcile(elementId) {
+    window.setTimeout(() => {
+        const cwState = chatwootInstances[elementId];
+
+        if (!cwState)
+            return;
+
+        cwState.isOpening = false;
+        reconcileWidgetPointerEvents(elementId);
+    }, 1500);
+}
+
+function tryOpenWidget(elementId) {
+    const cwState = chatwootInstances[elementId];
+
+    if (!cwState?.isLoaded || !window.$chatwoot?.toggle)
+        return false;
+
+    setWidgetPointerEvents(elementId, true);
+    cwState.isOpening = true;
+    window.$chatwoot.toggle("open");
+    scheduleWidgetReconcile(elementId);
+
+    return true;
 }
 
 export function shutdown(elementId) {
@@ -186,6 +233,51 @@ export function toggle(elementId) {
     if (chatwootInstances[elementId]?.isLoaded) {
         window.$chatwoot?.toggle();
     }
+}
+
+export function open(elementId) {
+    const cwState = chatwootInstances[elementId];
+
+    if (!cwState?.isLoaded)
+        return;
+
+    const attemptId = ++cwState.openAttempt;
+    createWidgetStateObserver(elementId);
+
+    if (tryOpenWidget(elementId))
+        return;
+
+    let attempts = 0;
+    const interval = window.setInterval(() => {
+        attempts += 1;
+
+        if (tryOpenWidget(elementId) || attempts >= 20) {
+            const latestState = chatwootInstances[elementId];
+
+            if (attempts >= 20 && latestState && !latestState.isOpen && attemptId === latestState.openAttempt) {
+                latestState.isOpening = false;
+                setWidgetPointerEvents(elementId, false);
+            }
+
+            window.clearInterval(interval);
+        }
+    }, 100);
+}
+
+export function close(elementId) {
+    const cwState = chatwootInstances[elementId];
+
+    if (!cwState?.isLoaded)
+        return;
+
+    cwState.isOpen = false;
+    cwState.isOpening = false;
+
+    if (window.$chatwoot?.toggle) {
+        window.$chatwoot.toggle("close");
+    }
+
+    setWidgetPointerEvents(elementId, false);
 }
 
 export function setUser(elementId, identifier, attributesJson) {

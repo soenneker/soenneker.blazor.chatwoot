@@ -48,6 +48,16 @@ public interface IChatwoot : ILeptonCancellableIdentifiableContentElement
     ValueTask Toggle(CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Opens the Chatwoot widget.
+    /// </summary>
+    ValueTask Open(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Closes the Chatwoot widget without resetting the current session.
+    /// </summary>
+    ValueTask Close(CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Sets the user with a unique identifier and attributes.
     /// </summary>
     /// <param name="identifier">A unique string to identify the user.</param>

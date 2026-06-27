@@ -129,6 +129,22 @@
             await ChatwootInterop.Toggle(Id!, linked);
     }
 
+    public async ValueTask Open(CancellationToken cancellationToken = default)
+    {
+        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
+
+        using (cts)
+            await ChatwootInterop.Open(Id!, linked);
+    }
+
+    public async ValueTask Close(CancellationToken cancellationToken = default)
+    {
+        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
+
+        using (cts)
+            await ChatwootInterop.Close(Id!, linked);
+    }
+
     public async ValueTask SetUser(string identifier, object attributes, CancellationToken cancellationToken = default)
     {
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);

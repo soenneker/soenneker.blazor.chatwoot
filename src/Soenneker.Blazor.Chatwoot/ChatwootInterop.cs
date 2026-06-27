@@ -71,6 +71,28 @@ public sealed class ChatwootInterop : IChatwootInterop
         }
     }
 
+    public async ValueTask Open(string elementId, CancellationToken cancellationToken = default)
+    {
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+
+        using (source)
+        {
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidAsync("open", linked, elementId);
+        }
+    }
+
+    public async ValueTask Close(string elementId, CancellationToken cancellationToken = default)
+    {
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+
+        using (source)
+        {
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidAsync("close", linked, elementId);
+        }
+    }
+
     public async ValueTask SetUser(string elementId, string identifier, object attributes, CancellationToken cancellationToken = default)
     {
         CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);

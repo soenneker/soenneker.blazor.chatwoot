@@ -113,6 +113,8 @@ This library provides a full interface via `IChatwoot`, including:
 - `SetUser(...)`
 - `SetLabel(...)`
 - `Shutdown()`
+- `Open()`
+- `Close()`
 - `Toggle()`
 - `SetLocale(...)`
 - `SetCustomAttributes(...)`

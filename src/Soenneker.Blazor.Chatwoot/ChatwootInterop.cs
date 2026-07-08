@@ -6,6 +6,7 @@ using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
 using Soenneker.Extensions.CancellationTokens;
 using Soenneker.Utils.CancellationScopes;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -88,8 +89,14 @@ public sealed class ChatwootInterop : IChatwootInterop
 
         using (source)
         {
-            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-            await module.InvokeVoidAsync("close", linked, elementId);
+            try
+            {
+                IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+                await module.InvokeVoidAsync("close", linked, elementId);
+            }
+            catch (OperationCanceledException) when (linked.IsCancellationRequested)
+            {
+            }
         }
     }
 

@@ -3,133 +3,83 @@
 [![](https://img.shields.io/nuget/dt/soenneker.blazor.chatwoot.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.blazor.chatwoot/)
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.blazor.chatwoot/codeql.yml?label=CodeQL&style=for-the-badge)](https://github.com/soenneker/soenneker.blazor.chatwoot/actions/workflows/codeql.yml)
 
-# ![](https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png) Soenneker.Blazor.Chatwoot
+# Soenneker.Blazor.Chatwoot
 
-### A Blazor interop library for [Chatwoot](https://www.chatwoot.com/), the open-source customer engagement suite.
+A Blazor component and scoped JavaScript interop service for the Chatwoot website widget.
 
----
-
-## ? Features
-
-- ?? Lightweight Blazor component wrapper for the Chatwoot JS SDK
-- ?? Full .NET interop with JavaScript events
-- ?? Supports event callbacks like `OnOpen`, `OnMessage`, and `OnError`
-- ?? Clean integration using dependency injection
-- ?? Supports unit testing with `IChatwoot` abstraction
-
----
-
-## ?? Installation
+## Installation and registration
 
 ```bash
 dotnet add package Soenneker.Blazor.Chatwoot
 ```
 
-Register the interop in DI:
-
 ```csharp
-public static async Task Main(string[] args)
-{
-    builder.Services.AddChatwootInteropAsScoped();
-}
+using Soenneker.Blazor.Chatwoot.Registrars;
+
+builder.Services.AddChatwootInteropAsScoped();
 ```
 
----
-
-## ?? Usage
-
-### ?? Add to a Razor component
+## Render the widget
 
 ```razor
-<Chatwoot Configuration="_config"
-          OnOpen="HandleOpen"
-          OnClose="HandleClose"
-          OnReady="HandleReady"
-          OnMessage="HandleMessage"
-          OnError="HandleError" />
-```
+@using Soenneker.Blazor.Chatwoot.Configuration
+@using Soenneker.Blazor.Chatwoot.Dtos
 
-### ?? Component code-behind
+<Chatwoot @ref="_chatwoot"
+          Configuration="_configuration"
+          OnReady="OnReady"
+          OnOpen="OnOpen"
+          OnClose="OnClose"
+          OnMessage="OnMessage"
+          OnError="OnError" />
 
-```csharp
 @code {
-    private readonly ChatwootConfiguration _config = new()
+    private Chatwoot? _chatwoot;
+
+    private readonly ChatwootConfiguration _configuration = new()
     {
-        WebsiteToken = "replace-with-your-token",
-        BaseUrl = "https://app.chatwoot.com"
+        WebsiteToken = "your-website-token",
+        BaseUrl = "https://app.chatwoot.com",
+        Locale = "en",
+        Position = "right",
+        DarkMode = "auto"
     };
 
-    private Task HandleReady() => ConsoleLog("Chatwoot is ready!");
-    private Task HandleOpen() => ConsoleLog("Chat opened");
-    private Task HandleClose() => ConsoleLog("Chat closed");
-
-    private Task HandleMessage(ChatwootMessage message)
-    {
-        Console.WriteLine($"Message from Chatwoot: {message.Content}");
-        return Task.CompletedTask;
-    }
-
-    private Task HandleError(JsonElement error)
-    {
-        Console.WriteLine($"Chatwoot error: {error}");
-        return Task.CompletedTask;
-    }
-
-    private Task ConsoleLog(string msg)
-    {
-        Console.WriteLine(msg);
-        return Task.CompletedTask;
-    }
+    private Task OnReady() => Task.CompletedTask;
+    private Task OnOpen() => Task.CompletedTask;
+    private Task OnClose() => Task.CompletedTask;
+    private Task OnMessage(ChatwootMessage message) => Task.CompletedTask;
+    private Task OnError(JsonElement error) => Task.CompletedTask;
 }
 ```
 
----
+The component loads the SDK and creates the widget after its first render. `BaseUrl` must be absolute HTTPS; loopback HTTP is allowed for local development. Chatwoot's SDK is page-global, so render only one `Chatwoot` component at a time.
 
-## ?? Configuration
+## Control the widget
 
-You must supply a `ChatwootConfiguration` object to the component:
+Use the component reference after `OnReady` has fired:
 
 ```csharp
-var config = new ChatwootConfiguration
+await _chatwoot!.Open();
+await _chatwoot.Close();
+await _chatwoot.Toggle();
+
+await _chatwoot.SetUser("customer-42", new
 {
-    WebsiteToken = "your-token", // Required
-    BaseUrl = "https://app.chatwoot.com", // Optional, defaults to this
-    Locale = "en", // Optional, default is "en"
-    HideMessageBubble = false,
-    ShowUnreadMessagesDialog = false,
-    Position = "right", // "left" or "right"
-    UseBrowserLanguage = false,
-    Type = "standard", // or "expanded_bubble"
-    DarkMode = "auto", // "light" or "auto"
-    BaseDomain = null // Optional, for cross-subdomain tracking
-};
+    name = "Ada Lovelace",
+    email = "ada@example.com",
+    identifier_hash = hashFromYourServer
+});
+
+await _chatwoot.SetCustomAttributes(new
+{
+    plan = "enterprise",
+    region = "us-central"
+});
 ```
 
+The component also exposes `SetUserAttributes`, `SetLabel`, `RemoveLabel`, `SetLocale`, `DeleteCustomAttribute`, `Reset`, `Shutdown`, and `PopoutChatWindow`. `Close` hides the widget while retaining its session; `Reset` clears the Chatwoot session; `Shutdown` removes this wrapper's event handlers and resets the widget.
 
-## ?? API
+For authenticated visitors, enable Chatwoot identity validation and generate `identifier_hash` on a trusted server. Never place the HMAC secret in the Blazor application. Attribute values and chat content are sent to the configured Chatwoot instance, so apply the same consent and privacy controls used for other third-party customer-data tools.
 
-This library provides a full interface via `IChatwoot`, including:
-
-- `SetUser(...)`
-- `SetLabel(...)`
-- `Shutdown()`
-- `Open()`
-- `Close()`
-- `Toggle()`
-- `SetLocale(...)`
-- `SetCustomAttributes(...)`
-- ... and more!
-
----
-
-## ?? Chatwoot Events
-
-The following Chatwoot events are exposed as Blazor `EventCallback`s:
-
-| Chatwoot Event       | .NET Callback           |
-|----------------------|--------------------------|
-| `chatwoot:ready`     | `OnReady`                |
-| `chatwoot:open`      | `OnOpen`                 |
-| `chatwoot:close`     | `OnClose`                |
-| `chatwoot:on-message`| `OnMessage(ChatwootMessage)` |
-| `chatwoot:error`     | `OnError(JsonElement)`   |
+If the application uses a Content Security Policy, allow the configured Chatwoot origin for its SDK, frames, images, and network connections. The component releases its callbacks and widget state when it is removed.

@@ -19,6 +19,7 @@ public interface IChatwootInterop : IAsyncDisposable
     /// <param name="dotNetReference">JavaScript-invokable reference to the .NET component instance.</param>
     /// <param name="cancellationToken">Token used to cancel the operation.</param>
     /// <returns>A task that completes when the chatwoot is ready for use.</returns>
+    /// <exception cref="ArgumentException">Thrown when the element ID, website token, or base URL is invalid, or when the base URL is insecure.</exception>
     ValueTask Init(string elementId, ChatwootConfiguration configuration, DotNetObjectReference<Chatwoot> dotNetReference, CancellationToken cancellationToken = default);
 
     /// <summary>

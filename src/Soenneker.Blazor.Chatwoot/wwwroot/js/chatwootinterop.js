@@ -24,6 +24,9 @@ export function init(elementId, options, dotNetCallback) {
     if (chatwootInstances[elementId]?.isLoaded)
         return;
 
+    if (Object.keys(chatwootInstances).length > 0)
+        throw new Error("Only one Chatwoot widget can be active on a page.");
+
     chatwootInstances[elementId] = {
         dotNetCallback,
         isOpening: false,
@@ -88,11 +91,9 @@ function attachEvents(elementId) {
             const payload = event?.detail ?? null;
             updateWidgetStateFromEvent(elementId, eventName);
 
-            try {
-                cwState.dotNetCallback?.invokeMethodAsync(map[eventName], payload);
-            } catch (err) {
-                console.warn("Chatwoot callback error:", err);
-            }
+            cwState.dotNetCallback
+                ?.invokeMethodAsync(map[eventName], payload)
+                .catch(err => console.warn("Chatwoot callback error:", err));
         };
 
         eventHandlersByElementId[elementId][eventName] = handler;
@@ -280,15 +281,13 @@ export function close(elementId) {
     setWidgetPointerEvents(elementId, false);
 }
 
-export function setUser(elementId, identifier, attributesJson) {
-    const attributes = JSON.parse(attributesJson);
+export function setUser(elementId, identifier, attributes) {
     if (chatwootInstances[elementId]?.isLoaded) {
         window.$chatwoot?.setUser(identifier, attributes);
     }
 }
 
-export function setUserAttributes(elementId, attributesJson) {
-    const attributes = JSON.parse(attributesJson);
+export function setUserAttributes(elementId, attributes) {
     if (chatwootInstances[elementId]?.isLoaded) {
         window.$chatwoot?.setUserAttributes(attributes);
     }
@@ -324,8 +323,7 @@ export function reset(elementId) {
     }
 }
 
-export function setCustomAttributes(elementId, attributesJson) {
-    const attributes = JSON.parse(attributesJson);
+export function setCustomAttributes(elementId, attributes) {
     if (chatwootInstances[elementId]?.isLoaded) {
         window.$chatwoot?.setCustomAttributes(attributes);
     }

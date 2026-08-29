@@ -62,14 +62,6 @@
         if (_initialized)
             return;
 
-        if (Configuration.WebsiteToken.IsNullOrWhiteSpace())
-            throw new Exception("ChatwootConfiguration WebsiteToken is required.");
-
-        if (Configuration.BaseUrl.IsNullOrWhiteSpace())
-            throw new Exception("ChatwootConfiguration BaseUrl is required.");
-
-        _initialized = true;
-
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
@@ -78,6 +70,7 @@
             await ChatwootInterop.CreateObserver(Id!, linked);
         }
 
+        _initialized = true;
         _isCreated = true;
     }
 
@@ -227,12 +220,27 @@
 
     public override async ValueTask DisposeAsync()
     {
-        await base.DisposeAsync();
+        try
+        {
+            if (_isCreated)
+                await ChatwootInterop.Shutdown(Id!, CancellationToken.None);
+        }
+        catch (JSException)
+        {
+            // JavaScript may already be unavailable during application teardown.
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        finally
+        {
+            _dotNetReference?.Dispose();
+            _dotNetReference = null;
+            await base.DisposeAsync();
+        }
 
         _initialized = false;
         _isCreated = false;
-
-        _dotNetReference?.Dispose();
     }
 
 }

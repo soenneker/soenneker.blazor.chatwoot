@@ -14,8 +14,8 @@ public sealed class ChatwootConfiguration
     public string WebsiteToken { get; set; } = null!;
 
     /// <summary>
-    /// The base URL of the Chatwoot instance.
-    /// Default is "https://app.chatwoot.com".
+    /// The absolute base URL of the Chatwoot instance. HTTPS is required except for loopback HTTP development URLs.
+    /// Defaults to "https://app.chatwoot.com".
     /// </summary>
     [JsonPropertyName("baseUrl")]
     public string BaseUrl { get; set; } = "https://app.chatwoot.com";

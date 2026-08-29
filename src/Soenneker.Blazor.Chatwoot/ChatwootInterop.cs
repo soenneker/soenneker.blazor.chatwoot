@@ -33,6 +33,7 @@ public sealed class ChatwootInterop : IChatwootInterop
 
     private async ValueTask Initialize(ChatwootConfiguration config, CancellationToken token)
     {
+        ValidateConfiguration(config);
         await _resourceLoader.LoadScriptAndWaitForVariable(config.SdkUrl, "chatwootSDK", cancellationToken: token);
         _ = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, token);
     }
@@ -40,6 +41,10 @@ public sealed class ChatwootInterop : IChatwootInterop
     public async ValueTask Init(string elementId, ChatwootConfiguration configuration, DotNetObjectReference<Chatwoot> dotNetReference,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(elementId);
+        ArgumentNullException.ThrowIfNull(dotNetReference);
+        ValidateConfiguration(configuration);
+
         CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
@@ -216,8 +221,28 @@ public sealed class ChatwootInterop : IChatwootInterop
     /// <returns>A task that represents the asynchronous operation.</returns>
     public async ValueTask DisposeAsync()
     {
+        _cancellationScope.Cancel();
         await _moduleImportUtil.DisposeContentModule(_wrapperModulePath);
         await _scriptInitializer.DisposeAsync();
         await _cancellationScope.DisposeAsync();
+    }
+
+    private static void ValidateConfiguration(ChatwootConfiguration configuration)
+    {
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentException.ThrowIfNullOrWhiteSpace(configuration.WebsiteToken);
+        ArgumentException.ThrowIfNullOrWhiteSpace(configuration.BaseUrl);
+
+        if (!Uri.TryCreate(configuration.BaseUrl, UriKind.Absolute, out Uri? baseUri))
+            throw new ArgumentException("Chatwoot BaseUrl must be an absolute URI.", nameof(configuration));
+
+        bool isHttps = string.Equals(baseUri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase);
+        bool isLoopbackHttp = baseUri.IsLoopback && string.Equals(baseUri.Scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase);
+
+        if (!isHttps && !isLoopbackHttp)
+            throw new ArgumentException("Chatwoot BaseUrl must use HTTPS unless it is a loopback HTTP URI.", nameof(configuration));
+
+        if (!string.IsNullOrEmpty(baseUri.UserInfo))
+            throw new ArgumentException("Chatwoot BaseUrl cannot contain credentials.", nameof(configuration));
     }
 }

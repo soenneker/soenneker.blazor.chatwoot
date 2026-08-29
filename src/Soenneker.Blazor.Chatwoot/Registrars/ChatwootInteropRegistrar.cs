@@ -13,6 +13,8 @@ public static class ChatwootInteropRegistrar
     /// <summary>
     /// Adds <see cref="IChatwootInterop"/> as a scoped service. <para/>
     /// </summary>
+    /// <param name="services">Service collection that receives the registration.</param>
+    /// <returns>The same service collection, so additional registrations can be chained.</returns>
     public static IServiceCollection AddChatwootInteropAsScoped(this IServiceCollection services)
     {
         services.AddResourceLoaderAsScoped().TryAddScoped<IChatwootInterop, ChatwootInterop>();

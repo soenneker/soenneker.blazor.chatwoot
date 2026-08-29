@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Soenneker.Blazor.Chatwoot;
 
-///<inheritdoc cref="IChatwootInterop"/>
+/// <inheritdoc cref="IChatwootInterop"/>
 public sealed class ChatwootInterop : IChatwootInterop
 {
     private readonly IResourceLoader _resourceLoader;

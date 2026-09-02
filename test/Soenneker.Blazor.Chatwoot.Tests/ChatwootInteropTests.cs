@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Threading.Tasks;
 using AwesomeAssertions;
@@ -19,7 +20,7 @@ public class ChatwootInteropTests : HostedUnitTest
     }
 
     [Test]
-    public async Task Init_rejects_an_insecure_remote_base_url()
+    public async Task Init_rejects_an_insecure_remote_base_url(CancellationToken cancellationToken)
     {
         using DotNetObjectReference<Chatwoot> reference = DotNetObjectReference.Create(new Chatwoot());
         var configuration = new ChatwootConfiguration
@@ -28,7 +29,7 @@ public class ChatwootInteropTests : HostedUnitTest
             BaseUrl = "http://chat.example.com"
         };
 
-        Func<Task> act = async () => await _blazorlibrary.Init("chat", configuration, reference);
+        Func<Task> act = async () => await _blazorlibrary.Init("chat", configuration, reference, cancellationToken: cancellationToken);
 
         await act.Should().ThrowAsync<ArgumentException>();
     }

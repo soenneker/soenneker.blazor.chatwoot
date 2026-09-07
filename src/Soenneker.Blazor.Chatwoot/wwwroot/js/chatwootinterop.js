@@ -131,14 +131,18 @@ function updateWidgetStateFromEvent(elementId, eventName) {
 function setWidgetPointerEvents(elementId, enabled) {
     const options = chatwootInstances[elementId]?.options;
 
-    document.querySelectorAll(widgetFrameSelector).forEach(element => {
-        element.style.pointerEvents = enabled ? "" : "none";
-    });
+    const pointerEvents = enabled ? "" : "none";
+
+    for (const element of document.querySelectorAll(widgetFrameSelector)) {
+        if (element.style.pointerEvents !== pointerEvents)
+            element.style.pointerEvents = pointerEvents;
+    }
 
     if (options?.hideMessageBubble) {
-        document.querySelectorAll(widgetBubbleSelector).forEach(element => {
-            element.style.pointerEvents = enabled ? "" : "none";
-        });
+        for (const element of document.querySelectorAll(widgetBubbleSelector)) {
+            if (element.style.pointerEvents !== pointerEvents)
+                element.style.pointerEvents = pointerEvents;
+        }
     }
 }
 
@@ -343,7 +347,7 @@ export function createObserver(elementId) {
 
     const observer = new MutationObserver((mutations) => {
         const removed = mutations.some(m =>
-            Array.from(m.removedNodes).includes(target)
+            Array.prototype.includes.call(m.removedNodes, target)
         );
 
         if (removed) {

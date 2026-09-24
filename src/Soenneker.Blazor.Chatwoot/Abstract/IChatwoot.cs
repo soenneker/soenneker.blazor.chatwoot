@@ -13,7 +13,8 @@ namespace Soenneker.Blazor.Chatwoot.Abstract;
 public interface IChatwoot : ILeptonCancellableIdentifiableContentElement
 {
     /// <summary>
-    /// Invoked when the Chatwoot widget is ready.
+    /// Invoked when the Chatwoot widget is ready. With deferred initialization,
+    /// this occurs after the launcher or Open requests chat for the first time.
     /// </summary>
     EventCallback OnReady { get; set; }
 

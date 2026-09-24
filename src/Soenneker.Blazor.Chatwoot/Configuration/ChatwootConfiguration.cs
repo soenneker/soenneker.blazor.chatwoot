@@ -8,6 +8,15 @@ namespace Soenneker.Blazor.Chatwoot.Configuration;
 public sealed class ChatwootConfiguration
 {
     /// <summary>
+    /// Defers starting the widget until its launcher or Open is used, avoiding SDK
+    /// audio initialization on unrelated page interactions. Defaults to true.
+    /// Ready callbacks and proactive messages begin only after chat is requested.
+    /// Set false when proactive messaging is required before the user opens chat.
+    /// </summary>
+    [JsonPropertyName("deferUntilOpen")]
+    public bool DeferUntilOpen { get; set; } = true;
+
+    /// <summary>
     /// The website token provided by Chatwoot for widget integration.
     /// </summary>
     [JsonPropertyName("websiteToken")]

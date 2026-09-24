@@ -1,4 +1,4 @@
-﻿const chatwootInstances = {};
+const chatwootInstances = {};
 const eventHandlersByElementId = {};
 const widgetStateObserversByElementId = {};
 
@@ -34,6 +34,9 @@ export function init(elementId, options, dotNetCallback) {
         isOpen: false,
         isReady: false,
         openAttempt: 0,
+        isStarted: false,
+        wantsOpen: false,
+        pendingCommands: [],
         options
     };
 
@@ -41,10 +44,52 @@ export function init(elementId, options, dotNetCallback) {
 
     attachEvents(elementId);
 
-    window.chatwootSDK.run(window.chatwootSettings);
     applyWidgetLayer(options);
+    if (options.deferUntilOpen !== false) {
+        createDeferredLauncher(elementId);
+    } else {
+        startWidget(elementId);
+    }
+}
+
+function createDeferredLauncher(elementId) {
+    const state = chatwootInstances[elementId];
+    if (state.options.hideMessageBubble)
+        return;
+
+    const launcher = document.createElement("button");
+    launcher.type = "button";
+    launcher.className = "soenneker-chatwoot-launcher";
+    launcher.textContent = "Chat with us";
+    launcher.setAttribute("aria-label", "Open chat");
+    launcher.style.cssText = `position:fixed;bottom:20px;${state.options.position === "left" ? "left" : "right"}:20px;z-index:${Number.isFinite(state.options.widgetZIndex) ? state.options.widgetZIndex : 40};border:0;border-radius:28px;padding:16px 20px;background:#1f93ff;color:white;font:600 14px system-ui,sans-serif;cursor:pointer;box-shadow:0 4px 12px #0003`;
+    launcher.addEventListener("click", () => open(elementId));
+    document.body.appendChild(launcher);
+    state.launcher = launcher;
+}
+
+function startWidget(elementId) {
+    const state = chatwootInstances[elementId];
+    if (!state || state.isStarted)
+        return;
+
+    window.chatwootSDK.run(state.options);
+    state.isStarted = true;
+    for (const [method, args] of state.pendingCommands)
+        window.$chatwoot?.[method]?.(...args);
+    state.pendingCommands.length = 0;
     createWidgetStateObserver(elementId);
     setWidgetPointerEvents(elementId, false);
+}
+
+function invokeOrQueue(elementId, method, ...args) {
+    const state = chatwootInstances[elementId];
+    if (!state)
+        return;
+    if (state.isStarted)
+        window.$chatwoot?.[method]?.(...args);
+    else
+        state.pendingCommands.push([method, args]);
 }
 
 function applyWidgetLayer(options) {
@@ -91,8 +136,9 @@ function attachEvents(elementId) {
             const payload = event?.detail ?? null;
             updateWidgetStateFromEvent(elementId, eventName);
 
+            const args = eventName === "chatwoot:on-message" || eventName === "chatwoot:error" ? [payload] : [];
             cwState.dotNetCallback
-                ?.invokeMethodAsync(map[eventName], payload)
+                ?.invokeMethodAsync(map[eventName], ...args)
                 .catch(err => console.warn("Chatwoot callback error:", err));
         };
 
@@ -109,11 +155,16 @@ function updateWidgetStateFromEvent(elementId, eventName) {
 
     if (eventName === "chatwoot:ready") {
         cwState.isReady = true;
+        cwState.launcher?.remove();
+        cwState.launcher = null;
         createWidgetStateObserver(elementId);
+        if (cwState.wantsOpen)
+            tryOpenWidget(elementId);
         return;
     }
 
     if (eventName === "chatwoot:open") {
+        cwState.wantsOpen = true;
         cwState.isOpen = true;
         cwState.isOpening = false;
         cwState.isReady = true;
@@ -122,6 +173,7 @@ function updateWidgetStateFromEvent(elementId, eventName) {
     }
 
     if (eventName === "chatwoot:close" || eventName === "chatwoot:error") {
+        cwState.wantsOpen = false;
         cwState.isOpen = false;
         cwState.isOpening = false;
         setWidgetPointerEvents(elementId, false);
@@ -162,6 +214,10 @@ function reconcileWidgetPointerEvents(elementId) {
 
     const frame = document.querySelector(widgetFrameSelector);
 
+    // Current SDK releases expose isOpen but do not always dispatch open/close
+    // DOM events (including when their own launcher is used).
+    if (typeof window.$chatwoot?.isOpen === "boolean")
+        cwState.isOpen = window.$chatwoot.isOpen;
     if (cwState.isOpen && frame && isHidden(frame))
         cwState.isOpen = false;
 
@@ -172,7 +228,18 @@ function createWidgetStateObserver(elementId) {
     if (widgetStateObserversByElementId[elementId] || !document.body)
         return;
 
-    const observer = new MutationObserver(() => reconcileWidgetPointerEvents(elementId));
+    // Blazor updates classes/styles throughout the page. Those mutations must not
+    // trigger document-wide selectors and computed-style reads for the chat widget.
+    const selector = `${widgetFrameSelector},${widgetBubbleSelector}`;
+    const affectsWidget = node => node.nodeType === 1 &&
+        (node.matches(selector) || !!node.querySelector(selector));
+    const observer = new MutationObserver(records => {
+        const relevant = records.some(record => record.type === "attributes"
+            ? affectsWidget(record.target)
+            : [...record.addedNodes, ...record.removedNodes].some(affectsWidget));
+        if (relevant)
+            reconcileWidgetPointerEvents(elementId);
+    });
     observer.observe(document.body, {
         childList: true,
         subtree: true,
@@ -184,10 +251,11 @@ function createWidgetStateObserver(elementId) {
 }
 
 function scheduleWidgetReconcile(elementId) {
+    const state = chatwootInstances[elementId];
     window.setTimeout(() => {
         const cwState = chatwootInstances[elementId];
 
-        if (!cwState)
+        if (!cwState || cwState !== state)
             return;
 
         cwState.isOpening = false;
@@ -198,12 +266,13 @@ function scheduleWidgetReconcile(elementId) {
 function tryOpenWidget(elementId) {
     const cwState = chatwootInstances[elementId];
 
-    if (!cwState?.isLoaded || !window.$chatwoot?.toggle)
+    if (!cwState?.isReady || !cwState.wantsOpen || !window.$chatwoot?.toggle)
         return false;
 
     setWidgetPointerEvents(elementId, true);
     cwState.isOpening = true;
     window.$chatwoot.toggle("open");
+    cwState.isOpen = window.$chatwoot.isOpen === true;
     scheduleWidgetReconcile(elementId);
 
     return true;
@@ -222,7 +291,9 @@ export function shutdown(elementId) {
     const cwState = chatwootInstances[elementId];
 
     setWidgetPointerEvents(elementId, false);
-    window.$chatwoot?.reset();
+    if (cwState?.isStarted)
+        window.$chatwoot?.reset();
+    cwState?.launcher?.remove();
 
     if (cwState?.observer) {
         cwState.observer.disconnect();
@@ -235,9 +306,11 @@ export function shutdown(elementId) {
 }
 
 export function toggle(elementId) {
-    if (chatwootInstances[elementId]?.isLoaded) {
-        window.$chatwoot?.toggle();
-    }
+    const state = chatwootInstances[elementId];
+    if (state?.wantsOpen || state?.isOpen)
+        close(elementId);
+    else
+        open(elementId);
 }
 
 export function open(elementId) {
@@ -245,6 +318,37 @@ export function open(elementId) {
 
     if (!cwState?.isLoaded)
         return;
+
+    cwState.wantsOpen = true;
+    if (!cwState.isStarted) {
+        if (cwState.startScheduled)
+            return;
+        cwState.startScheduled = true;
+        if (cwState.launcher) {
+            cwState.launcher.textContent = "Opening chat…";
+            cwState.launcher.setAttribute("aria-busy", "true");
+        }
+        // Allow the launcher feedback to paint before starting third-party work.
+        window.requestAnimationFrame(() => window.setTimeout(() => {
+            if (chatwootInstances[elementId] !== cwState)
+                return;
+            cwState.startScheduled = false;
+            if (!cwState.wantsOpen)
+                return;
+            try {
+                startWidget(elementId);
+            } catch (error) {
+                cwState.wantsOpen = false;
+                if (cwState.launcher) {
+                    cwState.launcher.textContent = "Retry chat";
+                    cwState.launcher.removeAttribute("aria-busy");
+                }
+                cwState.dotNetCallback?.invokeMethodAsync("OnErrorCallback", { message: String(error) })
+                    .catch(err => console.warn("Chatwoot callback error:", err));
+            }
+        }, 0));
+        return;
+    }
 
     const attemptId = ++cwState.openAttempt;
     createWidgetStateObserver(elementId);
@@ -254,6 +358,10 @@ export function open(elementId) {
 
     let attempts = 0;
     const interval = window.setInterval(() => {
+        if (chatwootInstances[elementId] !== cwState || attemptId !== cwState.openAttempt || !cwState.wantsOpen) {
+            window.clearInterval(interval);
+            return;
+        }
         attempts += 1;
 
         if (tryOpenWidget(elementId) || attempts >= 20) {
@@ -277,6 +385,12 @@ export function close(elementId) {
 
     cwState.isOpen = false;
     cwState.isOpening = false;
+    cwState.wantsOpen = false;
+    cwState.openAttempt++;
+    if (cwState.launcher) {
+        cwState.launcher.textContent = "Chat with us";
+        cwState.launcher.removeAttribute("aria-busy");
+    }
 
     if (window.$chatwoot?.toggle) {
         window.$chatwoot.toggle("close");
@@ -286,57 +400,46 @@ export function close(elementId) {
 }
 
 export function setUser(elementId, identifier, attributes) {
-    if (chatwootInstances[elementId]?.isLoaded) {
-        window.$chatwoot?.setUser(identifier, attributes);
-    }
+    invokeOrQueue(elementId, "setUser", identifier, attributes);
 }
 
 export function setUserAttributes(elementId, attributes) {
-    if (chatwootInstances[elementId]?.isLoaded) {
-        window.$chatwoot?.setUserAttributes(attributes);
-    }
+    invokeOrQueue(elementId, "setUserAttributes", attributes);
 }
 
 export function setLabel(elementId, label) {
-    if (chatwootInstances[elementId]?.isLoaded) {
-        window.$chatwoot?.setLabel(label);
-    }
+    invokeOrQueue(elementId, "setLabel", label);
 }
 
 export function removeLabel(elementId, label) {
-    if (chatwootInstances[elementId]?.isLoaded) {
-        window.$chatwoot?.removeLabel(label);
-    }
+    invokeOrQueue(elementId, "removeLabel", label);
 }
 
 export function setLocale(elementId, locale) {
-    if (chatwootInstances[elementId]?.isLoaded) {
-        window.$chatwoot?.setLocale(locale);
-    }
+    invokeOrQueue(elementId, "setLocale", locale);
 }
 
 export function deleteCustomAttribute(elementId, key) {
-    if (chatwootInstances[elementId]?.isLoaded) {
-        window.$chatwoot?.deleteCustomAttribute(key);
-    }
+    invokeOrQueue(elementId, "deleteCustomAttribute", key);
 }
 
 export function reset(elementId) {
-    if (chatwootInstances[elementId]?.isLoaded) {
-        window.$chatwoot?.reset();
-    }
+    const state = chatwootInstances[elementId];
+    if (state && !state.isStarted)
+        state.pendingCommands.length = 0;
+    invokeOrQueue(elementId, "reset");
 }
 
 export function setCustomAttributes(elementId, attributes) {
-    if (chatwootInstances[elementId]?.isLoaded) {
-        window.$chatwoot?.setCustomAttributes(attributes);
-    }
+    invokeOrQueue(elementId, "setCustomAttributes", attributes);
 }
 
 export function popoutChatWindow(elementId) {
-    if (chatwootInstances[elementId]?.isLoaded) {
-        window.$chatwoot?.popoutChatWindow();
-    }
+    // Preserve the user activation required by window.open.
+    if (!chatwootInstances[elementId])
+        return;
+    startWidget(elementId);
+    window.$chatwoot?.popoutChatWindow();
 }
 
 export function createObserver(elementId) {

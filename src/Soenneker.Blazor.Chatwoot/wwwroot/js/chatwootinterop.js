@@ -60,9 +60,19 @@ function createDeferredLauncher(elementId) {
     const launcher = document.createElement("button");
     launcher.type = "button";
     launcher.className = "soenneker-chatwoot-launcher";
-    launcher.textContent = "Chat with us";
+    // Match the standard Chatwoot SDK bubble before its iframe is initialized.
+    const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    icon.setAttribute("viewBox", "0 0 240 240");
+    icon.setAttribute("aria-hidden", "true");
+    icon.setAttribute("focusable", "false");
+    icon.style.cssText = "display:block;width:24px;height:24px;margin:20px;padding:0";
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", "M240.808 240.808H122.123C56.6994 240.808 3.45695 187.562 3.45695 122.122C3.45695 56.7031 56.6994 3.45697 122.124 3.45697C187.566 3.45697 240.808 56.7031 240.808 122.122V240.808Z");
+    path.setAttribute("fill", "#FFFFFF");
+    icon.appendChild(path);
+    launcher.appendChild(icon);
     launcher.setAttribute("aria-label", "Open chat");
-    launcher.style.cssText = `position:fixed;bottom:20px;${state.options.position === "left" ? "left" : "right"}:20px;z-index:${Number.isFinite(state.options.widgetZIndex) ? state.options.widgetZIndex : 40};border:0;border-radius:28px;padding:16px 20px;background:#1f93ff;color:white;font:600 14px system-ui,sans-serif;cursor:pointer;box-shadow:0 4px 12px #0003`;
+    launcher.style.cssText = `position:fixed;bottom:20px;${state.options.position === "left" ? "left" : "right"}:20px;z-index:${Number.isFinite(state.options.widgetZIndex) ? state.options.widgetZIndex : 40};box-sizing:border-box;width:64px;height:64px;border:0;border-radius:100px;padding:0;background:#000;color:white;cursor:pointer;user-select:none;box-shadow:0 8px 24px #00000029`;
     launcher.addEventListener("click", () => open(elementId));
     document.body.appendChild(launcher);
     state.launcher = launcher;
@@ -96,6 +106,14 @@ function applyWidgetLayer(options) {
     const zIndex = Number.isFinite(options?.widgetZIndex) ? options.widgetZIndex : 40;
     const styleId = "soenneker-chatwoot-widget-layer";
     const css = `
+        .soenneker-chatwoot-launcher:hover {
+            box-shadow: 0 8px 32px #0006 !important;
+        }
+        .soenneker-chatwoot-launcher:focus-visible {
+            outline: 2px solid Highlight;
+            outline: 2px solid -webkit-focus-ring-color;
+            outline-offset: 2px;
+        }
         .woot-widget-bubble,
         .woot-widget-holder,
         #woot-widget-holder,
@@ -325,7 +343,7 @@ export function open(elementId) {
             return;
         cwState.startScheduled = true;
         if (cwState.launcher) {
-            cwState.launcher.textContent = "Opening chat…";
+            cwState.launcher.setAttribute("aria-label", "Opening chat…");
             cwState.launcher.setAttribute("aria-busy", "true");
         }
         // Allow the launcher feedback to paint before starting third-party work.
@@ -340,7 +358,7 @@ export function open(elementId) {
             } catch (error) {
                 cwState.wantsOpen = false;
                 if (cwState.launcher) {
-                    cwState.launcher.textContent = "Retry chat";
+                    cwState.launcher.setAttribute("aria-label", "Retry chat");
                     cwState.launcher.removeAttribute("aria-busy");
                 }
                 cwState.dotNetCallback?.invokeMethodAsync("OnErrorCallback", { message: String(error) })
@@ -388,7 +406,7 @@ export function close(elementId) {
     cwState.wantsOpen = false;
     cwState.openAttempt++;
     if (cwState.launcher) {
-        cwState.launcher.textContent = "Chat with us";
+        cwState.launcher.setAttribute("aria-label", "Open chat");
         cwState.launcher.removeAttribute("aria-busy");
     }
 

@@ -95,7 +95,7 @@
     [JSInvokable]
     public Task OnMessageCallback(JsonElement args)
     {
-        var obj = JsonUtil.Deserialize<ChatwootMessage>(args.GetRawText());
+        var obj = JsonUtil.Deserialize(args.GetRawText(), LibraryJsonContext.Default.ChatwootMessage);
 
         return OnMessage.InvokeIfHasDelegate(obj);
     }

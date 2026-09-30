@@ -20,7 +20,7 @@ public class ChatwootInteropTests : HostedUnitTest
     }
 
     [Test]
-    public async Task Init_rejects_an_insecure_remote_base_url(CancellationToken cancellationToken)
+    public async ValueTask Init_rejects_an_insecure_remote_base_url(CancellationToken cancellationToken)
     {
         using DotNetObjectReference<Chatwoot> reference = DotNetObjectReference.Create(new Chatwoot());
         var configuration = new ChatwootConfiguration

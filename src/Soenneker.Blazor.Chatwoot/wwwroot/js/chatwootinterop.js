@@ -252,11 +252,23 @@ function createWidgetStateObserver(elementId) {
     const affectsWidget = node => node.nodeType === 1 &&
         (node.matches(selector) || !!node.querySelector(selector));
     const observer = new MutationObserver(records => {
-        const relevant = records.some(record => record.type === "attributes"
-            ? affectsWidget(record.target)
-            : [...record.addedNodes, ...record.removedNodes].some(affectsWidget));
-        if (relevant)
-            reconcileWidgetPointerEvents(elementId);
+        for (const record of records) {
+            let relevant = record.type === "attributes" && affectsWidget(record.target);
+            if (record.type === "childList") {
+                for (const node of record.addedNodes) {
+                    if (affectsWidget(node)) { relevant = true; break; }
+                }
+                if (!relevant) {
+                    for (const node of record.removedNodes) {
+                        if (affectsWidget(node)) { relevant = true; break; }
+                    }
+                }
+            }
+            if (relevant) {
+                reconcileWidgetPointerEvents(elementId);
+                break;
+            }
+        }
     });
     observer.observe(document.body, {
         childList: true,
@@ -270,7 +282,8 @@ function createWidgetStateObserver(elementId) {
 
 function scheduleWidgetReconcile(elementId) {
     const state = chatwootInstances[elementId];
-    window.setTimeout(() => {
+    window.clearTimeout(state.reconcileTimer);
+    state.reconcileTimer = window.setTimeout(() => {
         const cwState = chatwootInstances[elementId];
 
         if (!cwState || cwState !== state)
@@ -312,6 +325,8 @@ export function shutdown(elementId) {
     if (cwState?.isStarted)
         window.$chatwoot?.reset();
     cwState?.launcher?.remove();
+    window.clearTimeout(cwState?.reconcileTimer);
+    window.clearInterval(cwState?.openInterval);
 
     if (cwState?.observer) {
         cwState.observer.disconnect();
@@ -374,8 +389,9 @@ export function open(elementId) {
     if (tryOpenWidget(elementId))
         return;
 
+    window.clearInterval(cwState.openInterval);
     let attempts = 0;
-    const interval = window.setInterval(() => {
+    const interval = cwState.openInterval = window.setInterval(() => {
         if (chatwootInstances[elementId] !== cwState || attemptId !== cwState.openAttempt || !cwState.wantsOpen) {
             window.clearInterval(interval);
             return;
@@ -405,6 +421,8 @@ export function close(elementId) {
     cwState.isOpening = false;
     cwState.wantsOpen = false;
     cwState.openAttempt++;
+    window.clearInterval(cwState.openInterval);
+    window.clearTimeout(cwState.reconcileTimer);
     if (cwState.launcher) {
         cwState.launcher.setAttribute("aria-label", "Open chat");
         cwState.launcher.removeAttribute("aria-busy");
@@ -466,6 +484,7 @@ export function createObserver(elementId) {
     if (!target || !target.parentNode)
         return null;
 
+    chatwootInstances[elementId]?.observer?.disconnect();
     const observer = new MutationObserver((mutations) => {
         const removed = mutations.some(m =>
             Array.prototype.includes.call(m.removedNodes, target)

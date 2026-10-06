@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.JSInterop;
 using Soenneker.Asyncs.Initializers;
 using Soenneker.Blazor.Chatwoot.Abstract;
@@ -51,7 +52,7 @@ public sealed class ChatwootInterop : IChatwootInterop
         {
             await _scriptInitializer.Init(configuration, linked);
             IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-            await module.InvokeVoidAsync("init", linked, elementId, configuration, dotNetReference);
+            await module.InvokeVoidAsync("init", linked, elementId, JsonSerializer.SerializeToElement(configuration, LibraryJsonContext.Default.ChatwootConfiguration), dotNetReference);
         }
     }
 

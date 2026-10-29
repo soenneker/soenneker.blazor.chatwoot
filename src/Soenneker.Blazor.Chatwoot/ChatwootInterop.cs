@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Extensions.IJSObjectReferences;
 using Soenneker.Asyncs.Initializers;
 using Soenneker.Blazor.Chatwoot.Abstract;
 using Soenneker.Blazor.Chatwoot.Configuration;
@@ -50,16 +51,9 @@ public sealed class ChatwootInterop : IChatwootInterop
 
         using (source)
         {
-            try
-            {
-                await _scriptInitializer.Init(configuration, linked);
-                IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-                await module.InvokeVoidAsync("init", linked, elementId, JsonSerializer.SerializeToElement(configuration, LibraryJsonContext.Default.ChatwootConfiguration), dotNetReference);
-            }
-            catch (JSException exception)
-            {
-                throw new JSException($"JavaScript operation 'ChatwootInterop.Init' failed: {exception.Message}", exception);
-            }
+            await _scriptInitializer.Init(configuration, linked);
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidWithContextAsync("init", linked, elementId, JsonSerializer.SerializeToElement(configuration, LibraryJsonContext.Default.ChatwootConfiguration), dotNetReference);
         }
     }
 
@@ -69,15 +63,8 @@ public sealed class ChatwootInterop : IChatwootInterop
 
         using (source)
         {
-            try
-            {
-                IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-                await module.InvokeVoidAsync("shutdown", linked, elementId);
-            }
-            catch (JSException exception)
-            {
-                throw new JSException($"JavaScript operation 'ChatwootInterop.Shutdown' failed: {exception.Message}", exception);
-            }
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidWithContextAsync("shutdown", linked, elementId);
         }
     }
 
@@ -87,15 +74,8 @@ public sealed class ChatwootInterop : IChatwootInterop
 
         using (source)
         {
-            try
-            {
-                IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-                await module.InvokeVoidAsync("toggle", linked, elementId);
-            }
-            catch (JSException exception)
-            {
-                throw new JSException($"JavaScript operation 'ChatwootInterop.Toggle' failed: {exception.Message}", exception);
-            }
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidWithContextAsync("toggle", linked, elementId);
         }
     }
 
@@ -105,15 +85,8 @@ public sealed class ChatwootInterop : IChatwootInterop
 
         using (source)
         {
-            try
-            {
-                IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-                await module.InvokeVoidAsync("open", linked, elementId);
-            }
-            catch (JSException exception)
-            {
-                throw new JSException($"JavaScript operation 'ChatwootInterop.Open' failed: {exception.Message}", exception);
-            }
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidWithContextAsync("open", linked, elementId);
         }
     }
 
@@ -140,15 +113,8 @@ public sealed class ChatwootInterop : IChatwootInterop
 
         using (source)
         {
-            try
-            {
-                IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-                await module.InvokeVoidAsync("setUser", linked, elementId, identifier, attributes);
-            }
-            catch (JSException exception)
-            {
-                throw new JSException($"JavaScript operation 'ChatwootInterop.{identifier}' failed: {exception.Message}", exception);
-            }
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidWithContextAsync("setUser", linked, elementId, identifier, attributes);
         }
     }
 
@@ -158,15 +124,8 @@ public sealed class ChatwootInterop : IChatwootInterop
 
         using (source)
         {
-            try
-            {
-                IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-                await module.InvokeVoidAsync("setUserAttributes", linked, elementId, attributes);
-            }
-            catch (JSException exception)
-            {
-                throw new JSException($"JavaScript operation 'ChatwootInterop.SetUserAttributes' failed: {exception.Message}", exception);
-            }
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidWithContextAsync("setUserAttributes", linked, elementId, attributes);
         }
     }
 
@@ -176,15 +135,8 @@ public sealed class ChatwootInterop : IChatwootInterop
 
         using (source)
         {
-            try
-            {
-                IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-                await module.InvokeVoidAsync("setLabel", linked, elementId, label);
-            }
-            catch (JSException exception)
-            {
-                throw new JSException($"JavaScript operation 'ChatwootInterop.SetLabel' failed: {exception.Message}", exception);
-            }
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidWithContextAsync("setLabel", linked, elementId, label);
         }
     }
 
@@ -194,15 +146,8 @@ public sealed class ChatwootInterop : IChatwootInterop
 
         using (source)
         {
-            try
-            {
-                IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-                await module.InvokeVoidAsync("createObserver", linked, elementId);
-            }
-            catch (JSException exception)
-            {
-                throw new JSException($"JavaScript operation 'ChatwootInterop.CreateObserver' failed: {exception.Message}", exception);
-            }
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidWithContextAsync("createObserver", linked, elementId);
         }
     }
 
@@ -212,15 +157,8 @@ public sealed class ChatwootInterop : IChatwootInterop
 
         using (source)
         {
-            try
-            {
-                IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-                await module.InvokeVoidAsync("removeLabel", linked, elementId, label);
-            }
-            catch (JSException exception)
-            {
-                throw new JSException($"JavaScript operation 'ChatwootInterop.RemoveLabel' failed: {exception.Message}", exception);
-            }
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidWithContextAsync("removeLabel", linked, elementId, label);
         }
     }
 
@@ -230,15 +168,8 @@ public sealed class ChatwootInterop : IChatwootInterop
 
         using (source)
         {
-            try
-            {
-                IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-                await module.InvokeVoidAsync("setLocale", linked, elementId, locale);
-            }
-            catch (JSException exception)
-            {
-                throw new JSException($"JavaScript operation 'ChatwootInterop.SetLocale' failed: {exception.Message}", exception);
-            }
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidWithContextAsync("setLocale", linked, elementId, locale);
         }
     }
 
@@ -248,15 +179,8 @@ public sealed class ChatwootInterop : IChatwootInterop
 
         using (source)
         {
-            try
-            {
-                IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-                await module.InvokeVoidAsync("deleteCustomAttribute", linked, elementId, attributeKey);
-            }
-            catch (JSException exception)
-            {
-                throw new JSException($"JavaScript operation 'ChatwootInterop.DeleteCustomAttribute' failed: {exception.Message}", exception);
-            }
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidWithContextAsync("deleteCustomAttribute", linked, elementId, attributeKey);
         }
     }
 
@@ -266,15 +190,8 @@ public sealed class ChatwootInterop : IChatwootInterop
 
         using (source)
         {
-            try
-            {
-                IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-                await module.InvokeVoidAsync("reset", linked, elementId);
-            }
-            catch (JSException exception)
-            {
-                throw new JSException($"JavaScript operation 'ChatwootInterop.Reset' failed: {exception.Message}", exception);
-            }
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidWithContextAsync("reset", linked, elementId);
         }
     }
 
@@ -284,15 +201,8 @@ public sealed class ChatwootInterop : IChatwootInterop
 
         using (source)
         {
-            try
-            {
-                IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-                await module.InvokeVoidAsync("setCustomAttributes", linked, elementId, attributes);
-            }
-            catch (JSException exception)
-            {
-                throw new JSException($"JavaScript operation 'ChatwootInterop.SetCustomAttributes' failed: {exception.Message}", exception);
-            }
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidWithContextAsync("setCustomAttributes", linked, elementId, attributes);
         }
     }
 
@@ -302,15 +212,8 @@ public sealed class ChatwootInterop : IChatwootInterop
 
         using (source)
         {
-            try
-            {
-                IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
-                await module.InvokeVoidAsync("popoutChatWindow", linked, elementId);
-            }
-            catch (JSException exception)
-            {
-                throw new JSException($"JavaScript operation 'ChatwootInterop.PopoutChatWindow' failed: {exception.Message}", exception);
-            }
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_wrapperModulePath, linked);
+            await module.InvokeVoidWithContextAsync("popoutChatWindow", linked, elementId);
         }
     }
 
